@@ -1,0 +1,415 @@
+# Research Notes - Cross-Strategy Regime Analysis
+
+## Current Stage
+
+Project initialized.
+
+The first version should focus on a clean daily-data regime framework before adding intraday ORB logic.
+
+## Initial Direction
+
+Start with:
+
+- QQQ buy-and-hold.
+- Simple QQQ daily momentum.
+- Volatility regimes.
+- Trend regimes.
+- Combined volatility/trend regimes.
+
+## Important Caution
+
+This project must clearly separate descriptive regime analysis from tradable backtest logic.
+
+Descriptive analysis can explain how returns behaved across regimes.
+
+Tradable strategy logic must use only information available at the time of decision.
+
+## EXP-001 - QQQ Buy-and-Hold Regime Baseline
+
+Experiment ID: `EXP-001_QQQ_BUY_AND_HOLD_REGIME_BASELINE`
+
+QuantConnect project: `04 - Cross-Strategy Regime Analysis`
+
+Purpose: establish a QQQ buy-and-hold benchmark and summarize QQQ daily returns across volatility and trend regimes.
+
+Backtest period: 2020-01-01 to 2026-07-01.
+
+### QuantConnect Performance Statistics
+
+The buy-and-hold benchmark produced:
+
+- CAGR: 19.757%
+- Sharpe: 0.605
+- Sortino: 0.663
+- Max drawdown: 34.800%
+- Net profit: 211.712%
+- End equity: $311,711.69
+- Total orders: 1
+- Fees: $2.40
+
+### Regime Summary
+
+The algorithm recorded 1,581 daily return observations. Of those, 1,310 were fully classified into both volatility and trend regimes.
+
+Overall, the close-to-close QQQ return summary showed:
+
+- Cumulative return: 210.98%
+- Annualized return: 19.82%
+- Annualized volatility: 24.98%
+- Sharpe-like ratio: 0.794
+- Win rate: 56.04%
+
+The trend regime split was the clearest finding:
+
+- Uptrend days: 20.51% annualized return, 17.66% annualized volatility, 1.161 Sharpe-like ratio.
+- Downtrend days: 0.91% annualized return, 33.44% annualized volatility, 0.027 Sharpe-like ratio.
+
+This suggests QQQ buy-and-hold was highly sensitive to the trend regime. Most of the attractive return profile came from uptrend periods, while downtrend periods delivered almost no annualized return with much higher volatility.
+
+The volatility regime split was less decisive:
+
+- High-volatility days had a 19.51% annualized return and 27.34% annualized volatility.
+- Low-volatility days had a 12.59% annualized return and 17.63% annualized volatility.
+- Both had the same Sharpe-like ratio of 0.714.
+
+This means high-volatility days were not simply bad for buy-and-hold in this test. They produced higher annualized return, but also higher risk.
+
+The combined regime split showed the strongest and weakest environments:
+
+- Best combined regime by Sharpe-like ratio: high-volatility uptrend, with 26.27% annualized return and 1.329 Sharpe-like ratio.
+- Second strongest: low-volatility uptrend, with 17.84% annualized return and 1.077 Sharpe-like ratio.
+- Weakest: low-volatility downtrend, with -31.99% annualized return and -1.195 Sharpe-like ratio, but only 61 days of data.
+
+### Interpretation
+
+This first benchmark supports the broad Project 4 hypothesis that strategy behavior can vary meaningfully by regime. Even before testing momentum, QQQ buy-and-hold behaved very differently in uptrends versus downtrends.
+
+The result does not prove that regime switching improves performance. It only establishes that the benchmark itself has regime-sensitive return behavior.
+
+This analysis is best described as a tradable-safe descriptive benchmark analysis. The strategy is still buy-and-hold, but daily returns are assigned to regime labels that were known from prior data rather than future data.
+
+### Limitations
+
+- This is only one asset: QQQ.
+- The test period begins in 2020, so results may be influenced by the post-2020 market environment.
+- The low-volatility downtrend bucket has only 61 days, so that result should not be overstated.
+- The Sharpe-like values in the debug summary are calculated from grouped daily returns and are not identical to QuantConnect's built-in portfolio Sharpe.
+- This experiment does not yet compare against a momentum strategy.
+
+### Next Experiment
+
+The next logical experiment is:
+
+`EXP-002_QQQ_DAILY_MOMENTUM_REGIME_BASELINE`
+
+That experiment should use the same regime framework but trade a simple daily momentum strategy. Then we can compare whether momentum improves the weak downtrend behavior or gives up too much upside during uptrends.
+
+## EXP-002 - QQQ Daily Momentum Regime Baseline
+
+Experiment ID: `EXP-002_QQQ_DAILY_MOMENTUM_REGIME_BASELINE`
+
+QuantConnect project: `04 - Cross-Strategy Regime Analysis`
+
+Purpose: test a simple QQQ daily momentum strategy and summarize its returns across the same volatility and trend regimes used in EXP-001.
+
+Strategy rule: hold QQQ when trailing 60-day momentum is positive. Otherwise hold cash.
+
+Backtest period: 2020-01-01 to 2026-07-01.
+
+### QuantConnect Performance Statistics
+
+The daily momentum strategy produced:
+
+- CAGR: 15.833%
+- Sharpe: 0.657
+- Sortino: 0.606
+- Max drawdown: 19.600%
+- Net profit: 152.649%
+- End equity: $252,649.13
+- Total orders: 79
+- Fees: $150.72
+- Momentum exposure: 68.37%
+
+Compared with EXP-001 buy-and-hold:
+
+- CAGR fell from 19.757% to 15.833%.
+- Net profit fell from 211.712% to 152.649%.
+- Max drawdown improved from 34.800% to 19.600%.
+- Sharpe improved from 0.605 to 0.657.
+- Sortino fell from 0.663 to 0.606.
+- Orders increased from 1 to 79.
+- Fees increased from $2.40 to $150.72.
+
+### Regime Summary
+
+The algorithm recorded 1,581 daily return observations. Of those, 1,310 were fully classified into both volatility and trend regimes.
+
+Overall, the daily momentum return summary showed:
+
+- Cumulative return: 132.94%
+- Annualized return: 14.43%
+- Annualized volatility: 15.53%
+- Sharpe-like ratio: 0.929
+- Win rate: 39.03%
+
+The lower win rate is not automatically bad here because the strategy spends many days in cash. Cash days count as zero-return days and do not count as wins.
+
+### Volatility Regimes
+
+Momentum performed better in low-volatility regimes than in high-volatility regimes:
+
+- High-volatility days: 6.55% annualized return, 12.73% annualized volatility, 0.515 Sharpe-like ratio.
+- Low-volatility days: 15.21% annualized return, 16.06% annualized volatility, 0.947 Sharpe-like ratio.
+
+This is directionally consistent with Project 1: QQQ momentum looked better when avoiding or reducing exposure to higher-volatility periods.
+
+### Trend Regimes
+
+Momentum reduced the damage from downtrend periods compared with buy-and-hold:
+
+- Momentum in downtrends: 3.80% annualized return, 9.46% annualized volatility, 0.402 Sharpe-like ratio.
+- Buy-and-hold in downtrends from EXP-001: 0.91% annualized return, 33.44% annualized volatility, 0.027 Sharpe-like ratio.
+
+Momentum also gave up upside in uptrends:
+
+- Momentum in uptrends: 13.77% annualized return, 15.96% annualized volatility, 0.863 Sharpe-like ratio.
+- Buy-and-hold in uptrends from EXP-001: 20.51% annualized return, 17.66% annualized volatility, 1.161 Sharpe-like ratio.
+
+This is the core tradeoff so far: momentum improved downside/risk control but reduced participation in strong uptrend returns.
+
+### Combined Regimes
+
+The strongest combined momentum regime was low-volatility uptrend:
+
+- Low-volatility uptrend: 15.89% annualized return, 15.72% annualized volatility, 1.011 Sharpe-like ratio.
+
+The weakest high-level area was high-volatility exposure:
+
+- High-volatility uptrend: 9.49% annualized return, 16.48% annualized volatility, 0.576 Sharpe-like ratio.
+- High-volatility downtrend: 2.82% annualized return, 4.32% annualized volatility, 0.653 Sharpe-like ratio.
+
+The high-volatility downtrend Sharpe-like ratio looks decent because volatility was very low for strategy returns, likely because the momentum strategy was often in cash. This should be interpreted as risk reduction, not necessarily strong return generation.
+
+Low-volatility downtrend was positive for momentum, with 7.86% annualized return, but this bucket had only 61 days, so it should not be overstated.
+
+### Interpretation
+
+EXP-002 supports the idea that different strategy types behave differently across regimes.
+
+Buy-and-hold produced higher raw return and higher end equity, but suffered much larger drawdown. Momentum produced lower raw return, but improved drawdown and Sharpe. The regime summaries suggest momentum was most useful as a risk-management rule, especially around downtrends and low-volatility environments.
+
+The result does not prove that the 60-day lookback is optimal. It only shows that this simple preselected momentum rule changed the return/risk profile versus buy-and-hold.
+
+### Descriptive vs Tradable
+
+This is a tradable strategy backtest with descriptive regime summaries.
+
+The strategy itself uses a prior-data momentum signal to decide whether to hold QQQ. The regime summaries assign each strategy return to a regime label known from prior data. This keeps the experiment aligned with the no-lookahead standard.
+
+### Limitations
+
+- This is only one momentum lookback: 60 trading days.
+- The strategy was tested only on QQQ.
+- The sample starts in 2020, so results may be period-dependent.
+- The regime summaries are grouped return diagnostics, not separate live strategies.
+- The low-volatility downtrend bucket has only 61 days.
+- Momentum improved risk control but did not beat buy-and-hold on raw return.
+
+### Next Experiment
+
+The next logical experiment is:
+
+`EXP-003_QQQ_DAILY_MOMENTUM_LOW_MED_VOL_FILTER`
+
+That experiment would combine the 60-day momentum rule with a volatility regime filter, holding QQQ only when momentum is positive and volatility is not high. This directly connects Project 4 back to Project 1.
+
+## EXP-003 - QQQ Daily Momentum Low-Volatility Filter
+
+Experiment ID: `EXP-003_QQQ_DAILY_MOMENTUM_LOW_MED_VOL_FILTER`
+
+QuantConnect project: `04 - Cross-Strategy Regime Analysis`
+
+Purpose: test whether adding a volatility filter improves the simple QQQ daily momentum strategy from EXP-002.
+
+Strategy rule: hold QQQ when trailing 60-day momentum is positive and the prior volatility regime is low volatility. Otherwise hold cash.
+
+Backtest period: 2020-01-01 to 2026-07-01.
+
+### QuantConnect Performance Statistics
+
+The low-volatility-filtered momentum strategy produced:
+
+- CAGR: 6.331%
+- Sharpe: 0.166
+- Sortino: 0.120
+- Max drawdown: 15.400%
+- Net profit: 47.270%
+- End equity: $147,270.20
+- Total orders: 85
+- Fees: $112.62
+- Momentum low-volatility exposure: 40.86%
+
+Compared with EXP-002 daily momentum:
+
+- CAGR fell from 15.833% to 6.331%.
+- Net profit fell from 152.649% to 47.270%.
+- Max drawdown improved from 19.600% to 15.400%.
+- Sharpe fell from 0.657 to 0.166.
+- Sortino fell from 0.606 to 0.120.
+- Exposure fell from 68.37% to 40.86%.
+
+### Regime Summary
+
+The strategy had zero high-volatility return exposure by design:
+
+- High-volatility days: 0.00% cumulative return.
+- Low-volatility days: 51.29% cumulative return, 15.21% annualized return, 0.947 Sharpe-like ratio.
+
+This confirms that the volatility filter worked mechanically. It fully avoided high-volatility regimes.
+
+However, the overall strategy result became much weaker because avoiding high volatility removed too many return-producing periods. The strategy lowered volatility and drawdown, but the reduction in return was too large.
+
+### Interpretation
+
+EXP-003 weakens the idea that a strict low-volatility-only filter improves this Project 4 daily momentum strategy.
+
+The result is still useful. It shows that the high-volatility exposure in EXP-002 was not purely harmful. Even though EXP-002's high-volatility regime summary was weaker than its low-volatility summary, removing high-volatility exposure entirely caused the total strategy to underperform badly.
+
+The honest interpretation is:
+
+- The low-volatility filter improved drawdown.
+- The low-volatility filter reduced exposure.
+- The low-volatility filter materially damaged CAGR, Sharpe, Sortino, and net profit.
+- Avoiding all high-volatility periods appears too restrictive in this version.
+
+### Connection To Project 1
+
+This partly differs from Project 1.
+
+Project 1 found that avoiding high-volatility regimes helped some QQQ momentum variants manage risk. In Project 4 EXP-003, the strict binary low-volatility filter was too restrictive and weakened the daily momentum strategy.
+
+That does not invalidate Project 1. It means the exact regime definition and strategy context matter. A volatility filter can help risk control while still being too blunt if it removes too much market participation.
+
+### Descriptive vs Tradable
+
+This is a tradable strategy backtest with descriptive regime summaries.
+
+The position uses prior-day momentum and prior-day volatility regime information. The grouped regime summaries are diagnostic; they describe where the strategy returns occurred.
+
+### Limitations
+
+- This test uses a binary low/high volatility split based on a rolling median.
+- The experiment name says low/medium volatility, but the current Project 4 regime framework has only low and high volatility. In this implementation, "low/medium" effectively means "not high," which equals low under the binary regime setup.
+- The strategy may be too restrictive because it excludes all high-volatility periods.
+- This test does not prove volatility filters are bad; it only shows this specific strict filter weakened performance.
+
+### Next Experiment
+
+The next logical experiment is:
+
+`EXP-004_QQQ_DAILY_MOMENTUM_UPTREND_FILTER`
+
+That experiment would hold QQQ only when 60-day momentum is positive and the prior trend regime is uptrend. This tests whether the trend dimension, which was very important for buy-and-hold in EXP-001, improves the momentum strategy more effectively than the volatility filter.
+
+## EXP-004 - QQQ Daily Momentum Uptrend Filter
+
+Experiment ID: `EXP-004_QQQ_DAILY_MOMENTUM_UPTREND_FILTER`
+
+QuantConnect project: `04 - Cross-Strategy Regime Analysis`
+
+Purpose: test whether adding a trend filter improves the simple QQQ daily momentum strategy from EXP-002.
+
+Strategy rule: hold QQQ when trailing 60-day momentum is positive and the prior trend regime is uptrend. Otherwise hold cash.
+
+Backtest period: 2020-01-01 to 2026-07-01.
+
+### QuantConnect Performance Statistics
+
+The uptrend-filtered momentum strategy produced:
+
+- CAGR: 11.612%
+- Sharpe: 0.484
+- Sortino: 0.428
+- Max drawdown: 15.200%
+- Net profit: 99.925%
+- End equity: $199,925.33
+- Total orders: 77
+- Fees: $119.66
+- Momentum uptrend exposure: 59.01%
+
+Compared with EXP-002 daily momentum:
+
+- CAGR fell from 15.833% to 11.612%.
+- Net profit fell from 152.649% to 99.925%.
+- Max drawdown improved from 19.600% to 15.200%.
+- Sharpe fell from 0.657 to 0.484.
+- Sortino fell from 0.606 to 0.428.
+- Exposure fell from 68.37% to 59.01%.
+
+Compared with EXP-003 low-volatility-filtered momentum:
+
+- CAGR improved from 6.331% to 11.612%.
+- Net profit improved from 47.270% to 99.925%.
+- Max drawdown was similar, improving slightly from 15.400% to 15.200%.
+- Sharpe improved from 0.166 to 0.484.
+- Sortino improved from 0.120 to 0.428.
+
+### Regime Summary
+
+The strategy had zero downtrend exposure by design:
+
+- Downtrend days: 0.00% cumulative return.
+- Uptrend days: 66.96% cumulative return, 13.77% annualized return, 0.863 Sharpe-like ratio.
+
+The volatility split showed that returns still came mainly from low-volatility regimes:
+
+- High-volatility days: 5.28% annualized return, 12.41% annualized volatility, 0.425 Sharpe-like ratio.
+- Low-volatility days: 14.49% annualized return, 15.06% annualized volatility, 0.962 Sharpe-like ratio.
+
+The strongest combined regime remained low-volatility uptrend:
+
+- Low-volatility uptrend: 15.89% annualized return, 15.72% annualized volatility, 1.011 Sharpe-like ratio.
+
+### Interpretation
+
+EXP-004 shows that the trend filter was more useful than the strict volatility filter, but it still did not improve the overall strategy versus plain daily momentum.
+
+The trend filter reduced drawdown and avoided downtrend exposure, which is intuitively attractive. However, it also reduced return and risk-adjusted performance compared with EXP-002. This suggests that the plain 60-day momentum rule may already capture some trend information, so adding a 200-day trend filter may be partly redundant or too restrictive.
+
+The result supports the broader Project 4 hypothesis that strategy behavior differs across regimes. But it weakens the idea that simply adding a regime filter automatically improves a strategy.
+
+### Current Four-Experiment Takeaway
+
+So far:
+
+- EXP-001 buy-and-hold had the highest raw return and end equity, but the largest drawdown.
+- EXP-002 plain daily momentum had lower return than buy-and-hold, but improved drawdown and Sharpe.
+- EXP-003 low-volatility-filtered momentum was too restrictive and performed worst overall.
+- EXP-004 uptrend-filtered momentum was better than EXP-003, but still worse than EXP-002 on return and Sharpe.
+
+The best strategy so far depends on the objective:
+
+- Best raw return: EXP-001 buy-and-hold.
+- Best drawdown control: EXP-004 uptrend-filtered momentum, slightly better than EXP-003.
+- Best Sharpe: EXP-002 plain daily momentum.
+
+The honest current conclusion is that simple daily momentum improved risk-adjusted performance versus buy-and-hold, but adding strict volatility or trend filters reduced too much exposure.
+
+### Descriptive vs Tradable
+
+This is a tradable strategy backtest with descriptive regime summaries.
+
+The position uses prior-day momentum and prior-day trend regime information. The grouped regime summaries describe where strategy returns occurred; they are diagnostics, not separate strategy claims.
+
+### Limitations
+
+- This test uses only one trend definition: close above the 200-day moving average.
+- The strategy may be redundant with the 60-day momentum rule because both are trend-following concepts.
+- The result is only for QQQ from 2020-01-01 to 2026-07-01.
+- This does not yet test robustness across momentum lookbacks, assets, or subperiods.
+
+### Next Step
+
+This is a good first Git checkpoint.
+
+Before adding more experiments, the repo should be committed with EXP-001 through EXP-004 preserved and documented.

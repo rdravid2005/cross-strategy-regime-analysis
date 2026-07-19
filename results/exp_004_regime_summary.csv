@@ -1,0 +1,10 @@
+Experiment ID,Regime Type,Regime,Days,Cumulative Return,Annualized Return,Annualized Volatility,Sharpe Like,Average Daily Return,Win Rate
+EXP-004_QQQ_DAILY_MOMENTUM_UPTREND_FILTER,overall,all_days,1581,73.46%,9.18%,13.45%,0.682,0.0384%,33.21%
+EXP-004_QQQ_DAILY_MOMENTUM_UPTREND_FILTER,volatility_regime,high_volatility,573,12.40%,5.28%,12.41%,0.425,0.0235%,23.91%
+EXP-004_QQQ_DAILY_MOMENTUM_UPTREND_FILTER,volatility_regime,low_volatility,737,48.54%,14.49%,15.06%,0.962,0.0582%,47.35%
+EXP-004_QQQ_DAILY_MOMENTUM_UPTREND_FILTER,trend_regime,downtrend,309,0.00%,0.00%,0.00%,0.000,0.0000%,0.00%
+EXP-004_QQQ_DAILY_MOMENTUM_UPTREND_FILTER,trend_regime,uptrend,1001,66.96%,13.77%,15.96%,0.863,0.0563%,48.55%
+EXP-004_QQQ_DAILY_MOMENTUM_UPTREND_FILTER,combined_regime,high_volatility_downtrend,248,0.00%,0.00%,0.00%,0.000,0.0000%,0.00%
+EXP-004_QQQ_DAILY_MOMENTUM_UPTREND_FILTER,combined_regime,high_volatility_uptrend,325,12.40%,9.49%,16.48%,0.576,0.0414%,42.15%
+EXP-004_QQQ_DAILY_MOMENTUM_UPTREND_FILTER,combined_regime,low_volatility_downtrend,61,0.00%,0.00%,0.00%,0.000,0.0000%,0.00%
+EXP-004_QQQ_DAILY_MOMENTUM_UPTREND_FILTER,combined_regime,low_volatility_uptrend,676,48.54%,15.89%,15.72%,1.011,0.0635%,51.63%
