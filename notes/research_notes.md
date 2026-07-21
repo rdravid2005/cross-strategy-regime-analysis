@@ -413,3 +413,103 @@ The position uses prior-day momentum and prior-day trend regime information. The
 This is a good first Git checkpoint.
 
 Before adding more experiments, the repo should be committed with EXP-001 through EXP-004 preserved and documented.
+
+## EXP-005 - QQQ Daily Momentum Low-Volatility Uptrend Filter
+
+Experiment ID: `EXP-005_QQQ_DAILY_MOMENTUM_LOW_VOL_UPTREND_FILTER`
+
+QuantConnect project: `04 - Cross-Strategy Regime Analysis`
+
+Purpose: test whether the strongest observed combined regime, low-volatility uptrend, improves the simple QQQ daily momentum strategy when used as a trading filter.
+
+Strategy rule: hold QQQ when trailing 60-day momentum is positive, the prior volatility regime is low volatility, and the prior trend regime is uptrend. Otherwise hold cash.
+
+Backtest period shown in QuantConnect output: 2020-01-01 to 2026-04-22.
+
+### QuantConnect Performance Statistics
+
+The low-volatility uptrend filtered momentum strategy produced:
+
+- CAGR: 6.257%
+- Sharpe: 0.166
+- Sortino: 0.122
+- Max drawdown: 15.400%
+- Net profit: 46.676%
+- End equity: $146,676.26
+- Total orders: 81
+- Fees: $106.21
+- Momentum low-volatility uptrend exposure: 39.04%
+
+QuantConnect also showed two execution warnings:
+
+- One rebalance recommendation was ignored because it would have resulted in a single-share trade.
+- A market order submitted while the market was closed was converted to a MarketOnOpen order.
+
+These warnings should be noted, but they do not change the main interpretation. This is a daily-resolution strategy and QuantConnect handled the order timing.
+
+### Regime Summary
+
+The algorithm recorded 1,583 daily return observations. Of those, 1,312 were fully classified into both volatility and trend regimes.
+
+The strategy only produced returns in the low-volatility uptrend bucket by design:
+
+- Low-volatility uptrend: 48.54% cumulative return, 15.89% annualized return, 15.72% annualized volatility, 1.011 Sharpe-like ratio.
+- All other combined regimes: 0.00% cumulative return because the strategy was in cash.
+
+Overall, however, the full strategy result was weak:
+
+- Cumulative return: 48.54%
+- Annualized return: 6.50%
+- Annualized volatility: 10.28%
+- Sharpe-like ratio: 0.632
+- Win rate: 22.05%
+
+The low overall win rate is mainly because the strategy spends many days in cash. Cash days count as zero-return days and do not count as wins.
+
+### Interpretation
+
+EXP-005 confirms that the combined low-volatility uptrend filter was too restrictive.
+
+The selected regime looked strong when isolated, but using it as a trading filter produced weak overall performance because exposure fell to only 39.04%. The filter avoided higher-risk periods, but it also removed too much return opportunity.
+
+Compared with EXP-002 plain daily momentum:
+
+- CAGR fell from 15.833% to 6.257%.
+- Net profit fell from 152.649% to 46.676%.
+- Sharpe fell from 0.657 to 0.166.
+- Drawdown improved from 19.600% to 15.400%.
+
+Compared with EXP-004 uptrend-filtered momentum, EXP-005 was worse on CAGR, Sharpe, Sortino, net profit, and end equity, while having similar drawdown.
+
+The lesson is important: a regime bucket can look attractive descriptively, but a strict trading filter based on that bucket can still be unattractive if it removes too much exposure.
+
+### Current Five-Experiment Takeaway
+
+So far:
+
+- EXP-001 buy-and-hold had the highest raw return and end equity.
+- EXP-002 plain daily momentum had the best Sharpe among the tested strategies and materially reduced drawdown versus buy-and-hold.
+- EXP-003 low-volatility-filtered momentum was too restrictive.
+- EXP-004 uptrend-filtered momentum was better than EXP-003 but still worse than EXP-002.
+- EXP-005 low-volatility uptrend momentum was also too restrictive and did not improve on EXP-002 or EXP-004.
+
+The strongest current result is not a heavily filtered regime strategy. It is the simpler 60-day daily momentum strategy from EXP-002.
+
+### Descriptive vs Tradable
+
+This is a tradable strategy backtest with descriptive regime summaries.
+
+The strategy uses prior-day momentum, volatility, and trend information. The grouped regime summaries describe where the strategy returns occurred, but should not be treated as separate robustness tests.
+
+### Limitations
+
+- This test combines filters after observing that low-volatility uptrend was a strong bucket, so it should be treated cautiously as a follow-up experiment rather than proof.
+- The combined filter is very restrictive and may underperform because of low exposure rather than bad trade selection.
+- Results remain limited to QQQ and the 2020-2026 test period.
+- This does not yet test robustness across momentum lookbacks or alternative regime thresholds.
+
+### Next Step
+
+This is a good second Git checkpoint after EXP-005.
+
+The next research step should be a small robustness test rather than another stricter filter. A reasonable candidate is testing the plain daily momentum strategy with a different momentum lookback, such as 120 days, to see whether EXP-002 depends heavily on the 60-day parameter.
