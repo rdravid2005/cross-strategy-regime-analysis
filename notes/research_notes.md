@@ -922,3 +922,70 @@ The momentum series is a tradable QuantConnect portfolio using explicit next-ses
 ### Next Step
 
 The next experiment should test temporal robustness by comparing buy-and-hold and momentum over two predefined subperiods: 2020-2022 and 2023-2026. Strategy parameters and regime definitions should remain unchanged.
+
+## EXP-011 - Buy-and-Hold vs Momentum Subperiod Robustness
+
+Experiment ID: `EXP-011_QQQ_BH_VS_MOMENTUM_SUBPERIOD_ROBUSTNESS`
+
+QuantConnect project: `04 - Cross-Strategy Regime Analysis`
+
+Purpose: test whether the conclusions from EXP-010 persist across two predefined periods without changing the strategy, execution, or regime parameters.
+
+Subperiods:
+
+- 2020-01-01 through 2022-12-31.
+- 2023-01-01 through the available backtest end on 2026-04-24.
+
+### Full-Period Portfolio Check
+
+The QuantConnect statistics remained identical to the execution-aligned baseline: 13.729% CAGR, 0.538 Sharpe, 0.502 Sortino, 14.300% drawdown, 125.381% net profit, 63 orders, $132.43 in fees, and $225,380.60 end equity.
+
+This confirms that EXP-011 changed only the reporting split and did not change the traded strategy.
+
+### 2020-2022 Results
+
+Momentum was exposed on 56.42% of days. It returned 33.90% cumulatively, compared with 25.60% for buy-and-hold. Momentum therefore outperformed by 8.30 percentage points.
+
+Momentum also had much lower annualized volatility: 15.92% versus 29.59% for buy-and-hold. Its Sharpe-like ratio was 0.643 versus 0.267 for buy-and-hold.
+
+Within the classified observations, momentum lost less than buy-and-hold in both volatility regimes and during downtrends. In downtrends, momentum returned -6.90% cumulatively versus -18.88% for buy-and-hold. This supports the interpretation that momentum provided defensive value during the more difficult 2020-2022 environment.
+
+### 2023-2026 Results
+
+Momentum exposure rose to 79.40%. Momentum returned 68.32% cumulatively, while buy-and-hold returned 154.13%. Momentum underperformed by 85.81 percentage points.
+
+Buy-and-hold also had the stronger return-to-volatility result: a 1.649 Sharpe-like ratio versus 1.128 for momentum. Momentum still reduced annualized volatility from 19.85% to 15.19%, but the reduction was not enough to compensate for the missed return.
+
+The largest difference appeared in high volatility. Buy-and-hold returned 63.83% cumulatively during high-volatility observations versus 11.57% for momentum. In low volatility, results were much closer: 55.12% for buy-and-hold versus 50.86% for momentum.
+
+### Temporal Robustness Interpretation
+
+The evidence supports regime sensitivity but weakens any claim that momentum is a consistently superior strategy.
+
+Momentum was valuable in the stressful 2020-2022 period, when reducing exposure limited damage. It was much less effective during the strong 2023-2026 market, when continuous exposure captured powerful advances and volatile rebounds.
+
+The result is consistent with momentum acting as a defensive allocation rule. It can improve outcomes when avoiding losses matters, but it creates opportunity cost during sustained or rapidly recovering bull markets.
+
+### Classification Asymmetry
+
+Only 484 of the 755 observations in 2020-2022 were fully classified, because the 20-day volatility estimate and especially the rolling 252-observation volatility threshold required a long warm-up. All 830 observations in 2023-2026 were classified.
+
+Therefore, the overall subperiod comparison is valid across both full periods, but the first period's regime summaries do not represent all of 2020-2022. They primarily describe the post-warm-up portion of that period. This prevents a perfectly symmetric regime comparison between the two subperiods.
+
+### Statistical Cautions
+
+- The 2023-2026 downtrend bucket contains only 76 non-contiguous days.
+- Its annualized figures, including the 107.60% buy-and-hold annualized return, are mechanical conditional annualizations and should not be interpreted as calendar CAGRs.
+- Regime cumulative returns are not additive.
+- Momentum win rates include zero-return cash days and are not trade win rates.
+- The two periods contain different market environments and are not independent statistical samples.
+
+### Conclusion
+
+EXP-011 supports the project's main hypothesis: strategy performance depends strongly on market environment.
+
+Buy-and-hold was superior during the strong later-period market. Momentum was more competitive and more defensive during the earlier stressed period. Momentum should therefore be described as a regime-sensitive risk-control strategy rather than a universally better alternative to passive exposure.
+
+### Next Step
+
+The daily buy-and-hold and momentum framework is now sufficiently developed. The next phase should inspect the exact QQQ 5-minute ORB code preserved in Projects 2 and 3 before designing the first ORB-by-regime experiment.
