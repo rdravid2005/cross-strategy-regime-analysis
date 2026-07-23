@@ -2,24 +2,23 @@
 Project 4: Cross-Strategy Regime Analysis
 
 Experiment:
-EXP-009_QQQ_DAILY_MOMENTUM_EXPLICIT_MOO_BASELINE
+EXP-008_QQQ_DAILY_MOMENTUM_EXECUTION_ALIGNMENT_AUDIT
 
 QuantConnect project:
 04 - Cross-Strategy Regime Analysis
 
 Purpose:
-Create a reproducible 60-day momentum baseline with an explicit next-session
-MarketOnOpen execution rule and actual portfolio-value regime attribution.
+Align the custom daily regime return summaries with the portfolio that
+QuantConnect actually trades.
 
 Strategy rule:
-After each daily close, calculate trailing 60-day momentum and submit an
-explicit MarketOnOpen order for the next session. Hold cash when momentum is
-not positive.
+After each daily close, calculate trailing 60-day momentum. At the next market
+open, hold QQQ when momentum is positive and otherwise hold cash.
 
 Timing rule:
 The next day's signal and regime label are calculated only after the current
-daily close. The order cannot fill before the next session opens. Actual
-strategy returns come from changes in QuantConnect's total portfolio value.
+daily close. Actual strategy returns come from changes in QuantConnect's total
+portfolio value, so they include the engine's fills and fees.
 """
 
 from AlgorithmImports import *
@@ -36,7 +35,7 @@ class CrossStrategyRegimeAnalysis(QCAlgorithm):
 
         self.symbol = self.add_equity("QQQ", Resolution.DAILY).symbol
 
-        # Use the original 60-day momentum specification.
+        # Return to the original momentum specification for the timing audit.
         self.momentum_lookback = 60
         self.volatility_lookback = 20
         self.volatility_threshold_lookback = 252
@@ -56,23 +55,27 @@ class CrossStrategyRegimeAnalysis(QCAlgorithm):
         self.realized_volatility_history = []
         self.daily_records = []
 
-    def submit_market_on_open_rebalance(self, momentum_signal):
-        if momentum_signal is None:
+        # Execute the signal at the next regular-session market open.
+        self.schedule.on(
+            self.date_rules.every_day(self.symbol),
+            self.time_rules.after_market_open(self.symbol, 1),
+            self.rebalance_at_market_open,
+        )
+
+    def rebalance_at_market_open(self):
+        if self.pending_momentum_signal is None:
             return
 
-        desired_position = 1 if momentum_signal else 0
+        desired_position = 1 if self.pending_momentum_signal else 0
 
         # Avoid submitting a new order when the desired exposure is unchanged.
         if desired_position == self.current_target_position:
             return
 
         if desired_position == 1:
-            order_quantity = self.calculate_order_quantity(self.symbol, 1)
+            self.set_holdings(self.symbol, 1)
         else:
-            order_quantity = -self.portfolio[self.symbol].quantity
-
-        if order_quantity != 0:
-            self.market_on_open_order(self.symbol, order_quantity)
+            self.liquidate(self.symbol)
 
         self.current_target_position = desired_position
 
@@ -129,9 +132,6 @@ class CrossStrategyRegimeAnalysis(QCAlgorithm):
         self.pending_momentum_signal = (
             self.calculate_momentum_signal_for_next_day()
         )
-
-        # Submit after today's close for an explicit fill at the next open.
-        self.submit_market_on_open_rebalance(self.pending_momentum_signal)
 
         self.previous_close = close
         self.previous_portfolio_value = current_portfolio_value
@@ -200,8 +200,8 @@ class CrossStrategyRegimeAnalysis(QCAlgorithm):
         }
 
     def on_end_of_algorithm(self):
-        self.debug("EXP-009_QQQ_DAILY_MOMENTUM_EXPLICIT_MOO_BASELINE")
-        self.debug("Strategy: 60-day momentum with explicit MarketOnOpen orders")
+        self.debug("EXP-008_QQQ_DAILY_MOMENTUM_EXECUTION_ALIGNMENT_AUDIT")
+        self.debug("Strategy: 60-day momentum, rebalanced at next market open")
         self.debug("Regime timing: today's return uses yesterday's regime label")
         self.debug("Actual returns: daily changes in QuantConnect portfolio value")
         self.debug("Synthetic returns: target position times QQQ close return")
@@ -253,7 +253,7 @@ class CrossStrategyRegimeAnalysis(QCAlgorithm):
             "actual_portfolio_return",
         )
 
-        self.debug("SYNTHETIC CLOSE-TO-CLOSE COMPARISON SUMMARY")
+        self.debug("LEGACY SYNTHETIC CLOSE-TO-CLOSE SUMMARY")
         self.log_summary(
             "synthetic_all_days",
             self.daily_records,

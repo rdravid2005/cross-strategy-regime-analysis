@@ -1,0 +1,12 @@
+Experiment ID,Regime Type,Regime,Days,Cumulative Return,Annualized Return,Annualized Volatility,Sharpe Like,Average Daily Return,Win Rate
+EXP-008_QQQ_DAILY_MOMENTUM_EXECUTION_ALIGNMENT_AUDIT,actual_overall,actual_all_days,1585,155.01%,16.05%,15.46%,1.038,0.0638%,38.99%
+EXP-008_QQQ_DAILY_MOMENTUM_EXECUTION_ALIGNMENT_AUDIT,actual_volatility_regime,high_volatility,577,27.47%,11.18%,12.81%,0.873,0.0453%,25.13%
+EXP-008_QQQ_DAILY_MOMENTUM_EXECUTION_ALIGNMENT_AUDIT,actual_volatility_regime,low_volatility,737,60.62%,17.59%,16.02%,1.098,0.0694%,49.80%
+EXP-008_QQQ_DAILY_MOMENTUM_EXECUTION_ALIGNMENT_AUDIT,actual_trend_regime,downtrend,309,-2.83%,-2.32%,9.40%,-0.247,-0.0075%,6.47%
+EXP-008_QQQ_DAILY_MOMENTUM_EXECUTION_ALIGNMENT_AUDIT,actual_trend_regime,uptrend,1005,110.71%,20.55%,15.96%,1.288,0.0792%,48.96%
+EXP-008_QQQ_DAILY_MOMENTUM_EXECUTION_ALIGNMENT_AUDIT,actual_combined_regime,high_volatility_downtrend,248,-0.44%,-0.45%,3.41%,-0.131,-0.0015%,2.42%
+EXP-008_QQQ_DAILY_MOMENTUM_EXECUTION_ALIGNMENT_AUDIT,actual_combined_regime,high_volatility_uptrend,329,28.03%,20.84%,16.70%,1.248,0.0807%,42.25%
+EXP-008_QQQ_DAILY_MOMENTUM_EXECUTION_ALIGNMENT_AUDIT,actual_combined_regime,low_volatility_downtrend,61,-2.41%,-9.57%,20.13%,-0.475,-0.0319%,22.95%
+EXP-008_QQQ_DAILY_MOMENTUM_EXECUTION_ALIGNMENT_AUDIT,actual_combined_regime,low_volatility_uptrend,676,64.58%,20.41%,15.60%,1.308,0.0786%,52.22%
+EXP-008_QQQ_DAILY_MOMENTUM_EXECUTION_ALIGNMENT_AUDIT,comparison,synthetic_all_days,1585,139.09%,14.87%,15.54%,0.957,0.0598%,39.05%
+EXP-008_QQQ_DAILY_MOMENTUM_EXECUTION_ALIGNMENT_AUDIT,comparison,qqq_all_days,1585,219.19%,20.27%,24.97%,0.812,0.0856%,56.03%

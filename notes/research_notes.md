@@ -715,3 +715,145 @@ The QuantConnect portfolio is a tradable backtest under QuantConnect's MarketOnO
 ### Next Step
 
 Before building the direct buy-and-hold versus momentum comparison, the next experiment should audit and correct signal, fill, and return-attribution timing. After that correction, both strategy return streams can be compared under identical regime labels without mixing synthetic close-to-close exposure with a differently timed QuantConnect portfolio.
+
+## EXP-008 - QQQ Daily Momentum Execution Alignment Audit
+
+Experiment ID: `EXP-008_QQQ_DAILY_MOMENTUM_EXECUTION_ALIGNMENT_AUDIT`
+
+QuantConnect project: `04 - Cross-Strategy Regime Analysis`
+
+Purpose: determine whether custom regime returns can be calculated from actual QuantConnect portfolio values and reconciled to QuantConnect's reported performance.
+
+Intended execution rule: calculate the 60-day momentum signal after the daily close and rebalance shortly after the next market open.
+
+Observed execution rule: QuantConnect automatically converted the scheduled market orders to MarketOnClose orders because the algorithm subscribed only to daily-resolution data and the available price was stale during market hours.
+
+Backtest period shown in QuantConnect output: 2020-01-01 to 2026-04-24.
+
+### QuantConnect Performance Statistics
+
+- CAGR: 15.974%
+- Sharpe: 0.657
+- Sortino: 0.605
+- Max drawdown: 20.400%
+- Net profit: 155.007%
+- End equity: $255,007.43
+- Total orders: 63
+- Fees: $136.66
+- Momentum target exposure: 68.45%
+
+### Alignment Result
+
+The custom actual portfolio series produced a cumulative return of 155.01%. QuantConnect reported net profit of 155.007% and end equity of $255,007.43.
+
+The near-exact reconciliation confirms that daily changes in `total_portfolio_value` can be used to attribute the actual backtested strategy return to custom regimes. This is a material improvement over multiplying a target-position flag by QQQ's close-to-close return.
+
+The legacy synthetic series produced only 139.09% cumulative return, creating a 15.91 percentage-point gap versus the actual portfolio series. The gap demonstrates that execution timing, overnight exposure, fees, and QuantConnect fill behavior materially affect the return path.
+
+### Actual Portfolio Regime Results
+
+The actual portfolio series produced:
+
+- Overall: 16.05% annualized return, 15.46% annualized volatility, and 1.038 Sharpe-like ratio.
+- High volatility: 11.18% annualized return and 0.873 Sharpe-like ratio.
+- Low volatility: 17.59% annualized return and 1.098 Sharpe-like ratio.
+- Downtrend: -2.32% annualized return and -0.247 Sharpe-like ratio.
+- Uptrend: 20.55% annualized return and 1.288 Sharpe-like ratio.
+
+The combined regimes reinforced the same pattern. High-volatility uptrend and low-volatility uptrend were strong, while both downtrend combinations were negative or nearly flat. The low-volatility downtrend bucket remained particularly weak, although it contained only 61 observations.
+
+### Interpretation
+
+EXP-008 successfully validates the portfolio-value return-attribution method, but it does not validate the intended next-open execution rule.
+
+This distinction matters. The algorithm's log described next-open rebalancing, while QuantConnect actually used MarketOnClose orders. The resulting backtest remains useful as an execution audit, but it should not be represented as a next-open strategy.
+
+The result also changes the earlier downtrend interpretation. Once regime performance is measured from actual portfolio value, the 60-day momentum strategy was slightly negative in downtrends rather than clearly positive. Momentum still reduced downside materially relative to continuously holding QQQ, but it did not generate a strong positive downtrend return.
+
+### Descriptive vs Tradable
+
+The regime attribution is now tied to the actual backtested portfolio and is therefore a valid description of this QuantConnect backtest. The automatic order conversion is specific to backtesting with stale daily-resolution prices and would not be applied the same way in live trading, according to QuantConnect's warning. The observed strategy therefore needs an explicit order type before its execution rule can be considered reproducible across environments.
+
+### Limitations
+
+- Scheduled market orders did not execute at the intended next-open time.
+- QuantConnect automatically changed the order type because only daily-resolution data was available.
+- The backtest and live behavior would differ if the same market-order instruction were used unchanged.
+- Earlier regime summaries used synthetic close-to-close returns and should be treated as controlled descriptive comparisons rather than exact portfolio attribution.
+- The experiment remains limited to QQQ and one sample period.
+
+### Next Step
+
+The next experiment should specify the execution order explicitly. The cleanest daily-data design is to calculate the signal after the close and submit an explicit MarketOnOpen order for the next session. The resulting daily portfolio-value returns can then be attributed to prior-data regimes using the method validated here.
+
+## EXP-009 - QQQ Daily Momentum Explicit MarketOnOpen Baseline
+
+Experiment ID: `EXP-009_QQQ_DAILY_MOMENTUM_EXPLICIT_MOO_BASELINE`
+
+QuantConnect project: `04 - Cross-Strategy Regime Analysis`
+
+Purpose: establish a reproducible 60-day momentum baseline with an explicit next-session MarketOnOpen execution rule and actual portfolio-value regime attribution.
+
+Strategy rule: after each daily close, calculate trailing 60-day QQQ momentum. Submit an explicit MarketOnOpen order for the next session, holding QQQ when momentum is positive and cash otherwise.
+
+Backtest period shown in QuantConnect output: 2020-01-01 to 2026-04-24.
+
+### QuantConnect Performance Statistics
+
+- CAGR: 13.729%
+- Sharpe: 0.538
+- Sortino: 0.502
+- Max drawdown: 14.300%
+- Net profit: 125.381%
+- End equity: $225,380.60
+- Total orders: 63
+- Fees: $132.43
+- Momentum target exposure: 68.45%
+
+No order-conversion or stale-price warnings were reported.
+
+### Execution Alignment Result
+
+The custom actual portfolio series produced a 125.38% cumulative return. QuantConnect reported 125.381% net profit and ending equity of $225,380.60.
+
+This near-exact match confirms that the explicit MarketOnOpen implementation and daily portfolio-value attribution are aligned. EXP-009 is therefore the cleanest reproducible momentum implementation in the project so far.
+
+The synthetic close-to-close series produced 139.09%, overstating the actual next-open result by 13.71 percentage points. The difference reflects the fact that a signal calculated at today's close cannot earn the overnight return that occurs before its next-open fill. Existing positions also remain exposed through the overnight period before an exit order fills.
+
+### Actual Portfolio Regime Results
+
+- Overall: 13.79% annualized return, 15.54% annualized volatility, and 0.888 Sharpe-like ratio.
+- High volatility: 5.53% annualized return and 0.424 Sharpe-like ratio.
+- Low volatility: 16.04% annualized return and 0.999 Sharpe-like ratio.
+- Downtrend: 2.56% annualized return and 0.269 Sharpe-like ratio.
+- Uptrend: 14.14% annualized return and 0.879 Sharpe-like ratio.
+
+Low-volatility uptrend remained the strongest well-populated combined regime, with a 16.37% annualized return and 1.042 Sharpe-like ratio. High-volatility downtrend was nearly flat. Low-volatility downtrend was positive, but it contained only 61 observations and should not receive much weight.
+
+### Comparison With EXP-008
+
+EXP-008's automatically converted MarketOnClose implementation produced a 15.974% CAGR, 0.657 Sharpe, and 20.400% drawdown. EXP-009's explicit next-open implementation produced a 13.729% CAGR, 0.538 Sharpe, and 14.300% drawdown.
+
+MarketOnOpen execution reduced both return and drawdown. This is not evidence that one fill convention is universally better. It demonstrates that a daily momentum strategy's measured performance depends materially on whether a signal is filled at the close or at the next open.
+
+### Interpretation
+
+EXP-009 resolves the execution ambiguity uncovered in EXP-008. The result is weaker than the earlier synthetic and automatically converted versions, but it is more defensible because the code, order type, fill timing, and custom return attribution agree.
+
+The strategy continued to behave best in low-volatility and uptrend regimes. It provided limited positive performance in downtrends rather than a strong independent return source. Its main benefit versus buy-and-hold remains lower exposure and drawdown, not superior raw return.
+
+### Descriptive vs Tradable
+
+This is a tradable QuantConnect backtest with an explicit next-session MarketOnOpen execution rule. Its regime summaries use actual portfolio returns and regime labels known before the attributed trading day.
+
+### Limitations
+
+- Opening auction fills may differ from ordinary market-order fills after the open.
+- MarketOnOpen orders can be rejected if an overnight price gap makes the submitted quantity unaffordable.
+- The test remains limited to QQQ and one historical period.
+- Regime buckets are uneven, especially low-volatility downtrend.
+- Earlier lookback comparisons used the older execution framework and should not be treated as exact comparisons to this corrected baseline.
+
+### Next Step
+
+EXP-008 and EXP-009 should be committed together as an execution-alignment checkpoint. After that, the next experiment should compare the explicit-MOO 60-day momentum portfolio against QQQ buy-and-hold under the same prior-data regime labels.
