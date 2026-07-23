@@ -14,7 +14,7 @@ How do different strategy types perform across different market regimes?
 
 ## Current Status
 
-EXP-001 through EXP-009 have been run in QuantConnect.
+EXP-001 through EXP-010 have been run in QuantConnect.
 
 Completed initial experiments:
 
@@ -36,6 +36,8 @@ Completed initial experiments:
 
 `EXP-009_QQQ_DAILY_MOMENTUM_EXPLICIT_MOO_BASELINE`
 
+`EXP-010_QQQ_BH_VS_MOMENTUM_REGIME_COMPARISON`
+
 ## Planned First Outputs
 
 - `results/experiment_log.csv`
@@ -48,6 +50,7 @@ Completed initial experiments:
 - `results/exp_007_regime_summary.csv`
 - `results/exp_008_regime_summary.csv`
 - `results/exp_009_regime_summary.csv`
+- `results/exp_010_regime_summary.csv`
 - `notes/research_notes.md`
 
 ## QuantConnect Workflow

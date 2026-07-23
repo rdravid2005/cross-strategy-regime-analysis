@@ -857,3 +857,68 @@ This is a tradable QuantConnect backtest with an explicit next-session MarketOnO
 ### Next Step
 
 EXP-008 and EXP-009 should be committed together as an execution-alignment checkpoint. After that, the next experiment should compare the explicit-MOO 60-day momentum portfolio against QQQ buy-and-hold under the same prior-data regime labels.
+
+## EXP-010 - QQQ Buy-and-Hold vs Momentum Regime Comparison
+
+Experiment ID: `EXP-010_QQQ_BH_VS_MOMENTUM_REGIME_COMPARISON`
+
+QuantConnect project: `04 - Cross-Strategy Regime Analysis`
+
+Purpose: directly compare QQQ buy-and-hold with the execution-aligned 60-day momentum strategy under identical prior-data volatility and trend regime labels.
+
+Momentum execution: calculate the 60-day momentum signal after the daily close and submit an explicit MarketOnOpen order for the next session.
+
+Backtest period shown in QuantConnect output: 2020-01-01 to 2026-04-24.
+
+### Overall Comparison
+
+Buy-and-hold produced a 219.19% cumulative return, 20.27% annualized return, 24.97% annualized volatility, and 0.812 Sharpe-like ratio.
+
+Momentum produced a 125.38% cumulative return, 13.79% annualized return, 15.54% annualized volatility, and 0.888 Sharpe-like ratio while targeting QQQ exposure on 68.45% of days.
+
+Momentum trailed buy-and-hold by 93.81 percentage points of cumulative return. Its purpose was therefore not return maximization. It exchanged substantial upside for lower exposure and volatility. QuantConnect reported a 14.300% momentum drawdown, compared with approximately 34.800% in the earlier buy-and-hold benchmark, although those drawdowns came from separate backtests with slightly different endpoints.
+
+The custom Sharpe-like statistic is annualized return divided by annualized volatility without the same adjustments used by QuantConnect. It should not be described as QuantConnect Sharpe. QuantConnect reported a 0.538 Sharpe for momentum, while the earlier buy-and-hold backtest reported 0.605.
+
+### Volatility Regime Comparison
+
+In low volatility, momentum returned 16.04% annualized with 16.06% volatility and a 0.999 Sharpe-like ratio. Buy-and-hold returned 12.59% annualized with 17.63% volatility and a 0.714 Sharpe-like ratio. This was the clearest environment in which momentum outperformed buy-and-hold on both conditional return and volatility.
+
+In high volatility, momentum returned only 5.53% annualized versus 20.73% for buy-and-hold. Momentum cut volatility from 27.29% to 13.04%, but its 0.424 Sharpe-like ratio remained below buy-and-hold's 0.759. The 60-day signal appears to miss substantial upside during fast, volatile recoveries.
+
+### Trend Regime Comparison
+
+During uptrends, buy-and-hold returned 21.21% annualized versus 14.14% for momentum. Buy-and-hold also had the stronger Sharpe-like ratio. Continuous exposure was more effective when the broad trend was already favorable.
+
+During downtrends, momentum returned 2.56% annualized with 9.53% volatility. Buy-and-hold returned 0.91% annualized with 33.44% volatility. Momentum's advantage was primarily capital preservation rather than a strong independent downtrend return.
+
+### Combined Regime Comparison
+
+- High-volatility uptrend strongly favored buy-and-hold: 28.45% annualized versus 9.68% for momentum.
+- Low-volatility uptrend was close: 17.84% for buy-and-hold versus 16.37% for momentum, with momentum carrying slightly less volatility.
+- High-volatility downtrend left momentum nearly flat with very low volatility, while buy-and-hold earned more return but with 34.90% volatility.
+- Low-volatility downtrend favored momentum, but the bucket contained only 61 observations and is not strong enough for a robust conclusion.
+
+### Interpretation
+
+EXP-010 supports the initial hypothesis that different strategies behave differently across regimes.
+
+Buy-and-hold remained the stronger return-maximizing strategy. Momentum behaved as a defensive exposure filter: it helped most in low-volatility and downtrend environments, reduced risk materially, and missed substantial upside during high-volatility uptrends.
+
+A proportional conclusion is that the 60-day momentum rule can improve the shape of exposure, especially for drawdown-sensitive investors, but it did not replace buy-and-hold as the best way to maximize long-run QQQ return.
+
+### Descriptive vs Tradable
+
+The momentum series is a tradable QuantConnect portfolio using explicit next-session MarketOnOpen orders. Buy-and-hold is represented descriptively by QQQ close-to-close returns rather than a second separately funded portfolio. This is a reasonable benchmark approximation, but it excludes the negligible one-time benchmark trade fee.
+
+### Statistical Cautions
+
+- Regime days are non-contiguous. Conditional cumulative and annualized returns describe the collection of days assigned to each regime, not a standalone calendar-period strategy CAGR.
+- Regime cumulative returns are not additive across buckets.
+- Momentum cash days have zero returns and are counted as non-winning days, so its daily win rate is not a trade win rate.
+- The first 271 daily observations were part of indicator warm-up and were excluded from fully classified regime summaries but included in overall results.
+- Low-volatility downtrend contains only 61 observations.
+
+### Next Step
+
+The next experiment should test temporal robustness by comparing buy-and-hold and momentum over two predefined subperiods: 2020-2022 and 2023-2026. Strategy parameters and regime definitions should remain unchanged.
