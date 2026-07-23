@@ -1,0 +1,10 @@
+Experiment ID,Regime Type,Regime,Days,Cumulative Return,Annualized Return,Annualized Volatility,Sharpe Like,Average Daily Return,Win Rate
+EXP-006_QQQ_DAILY_MOMENTUM_120D_BASELINE,overall,all_days,1583,141.98%,15.10%,15.88%,0.951,0.0609%,41.44%
+EXP-006_QQQ_DAILY_MOMENTUM_120D_BASELINE,volatility_regime,high_volatility,575,21.02%,8.72%,15.70%,0.556,0.0381%,33.39%
+EXP-006_QQQ_DAILY_MOMENTUM_120D_BASELINE,volatility_regime,low_volatility,737,54.41%,16.01%,15.23%,1.051,0.0636%,50.07%
+EXP-006_QQQ_DAILY_MOMENTUM_120D_BASELINE,trend_regime,downtrend,309,-9.82%,-8.08%,6.95%,-1.162,-0.0325%,3.24%
+EXP-006_QQQ_DAILY_MOMENTUM_120D_BASELINE,trend_regime,uptrend,1003,107.20%,20.09%,17.21%,1.167,0.0785%,54.94%
+EXP-006_QQQ_DAILY_MOMENTUM_120D_BASELINE,combined_regime,high_volatility_downtrend,248,-10.86%,-11.02%,7.40%,-1.489,-0.0452%,2.82%
+EXP-006_QQQ_DAILY_MOMENTUM_120D_BASELINE,combined_regime,high_volatility_uptrend,327,35.76%,26.57%,19.75%,1.345,0.1013%,56.57%
+EXP-006_QQQ_DAILY_MOMENTUM_120D_BASELINE,combined_regime,low_volatility_downtrend,61,1.17%,4.93%,4.63%,1.064,0.0195%,4.92%
+EXP-006_QQQ_DAILY_MOMENTUM_120D_BASELINE,combined_regime,low_volatility_uptrend,676,52.62%,17.07%,15.84%,1.078,0.0675%,54.14%

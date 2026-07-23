@@ -2,17 +2,17 @@
 Project 4: Cross-Strategy Regime Analysis
 
 Experiment:
-EXP-007_QQQ_DAILY_MOMENTUM_20D_BASELINE
+EXP-006_QQQ_DAILY_MOMENTUM_120D_BASELINE
 
 QuantConnect project:
 04 - Cross-Strategy Regime Analysis
 
 Purpose:
 Test whether the plain QQQ daily momentum result from EXP-002 is sensitive
-to a shorter momentum lookback window.
+to the momentum lookback window.
 
 Strategy rule:
-Hold QQQ when trailing 20-day momentum is positive. Otherwise hold cash.
+Hold QQQ when trailing 120-day momentum is positive. Otherwise hold cash.
 
 Important timing rule:
 Today's portfolio position is based on the momentum signal calculated from
@@ -35,7 +35,7 @@ class CrossStrategyRegimeAnalysis(QCAlgorithm):
         self.symbol = self.add_equity("QQQ", Resolution.DAILY).symbol
 
         # Robustness test: only the momentum lookback changes from EXP-002.
-        self.momentum_lookback = 20
+        self.momentum_lookback = 120
         self.volatility_lookback = 20
         self.volatility_threshold_lookback = 252
         self.trend_lookback = 200
@@ -165,8 +165,8 @@ class CrossStrategyRegimeAnalysis(QCAlgorithm):
         }
 
     def on_end_of_algorithm(self):
-        self.debug("EXP-007_QQQ_DAILY_MOMENTUM_20D_BASELINE")
-        self.debug("Strategy: Hold QQQ when trailing 20-day momentum is positive")
+        self.debug("EXP-006_QQQ_DAILY_MOMENTUM_120D_BASELINE")
+        self.debug("Strategy: Hold QQQ when trailing 120-day momentum is positive")
         self.debug("Regime timing: today's return uses yesterday's regime label")
         self.debug("Signal timing: today's position uses yesterday's momentum signal")
         self.debug(f"Total daily records: {len(self.daily_records)}")
@@ -186,16 +186,16 @@ class CrossStrategyRegimeAnalysis(QCAlgorithm):
         self.debug(f"Fully classified daily records: {len(classified_records)}")
         self.debug(f"Momentum exposure: {exposure:.2%}")
 
-        self.debug("MOMENTUM 20D STRATEGY OVERALL SUMMARY")
+        self.debug("MOMENTUM 120D STRATEGY OVERALL SUMMARY")
         self.log_summary("all_days", self.daily_records, "strategy_return")
 
-        self.debug("MOMENTUM 20D STRATEGY VOLATILITY REGIME SUMMARY")
+        self.debug("MOMENTUM 120D STRATEGY VOLATILITY REGIME SUMMARY")
         self.log_group_summary(classified_records, "volatility_regime", "strategy_return")
 
-        self.debug("MOMENTUM 20D STRATEGY TREND REGIME SUMMARY")
+        self.debug("MOMENTUM 120D STRATEGY TREND REGIME SUMMARY")
         self.log_group_summary(classified_records, "trend_regime", "strategy_return")
 
-        self.debug("MOMENTUM 20D STRATEGY COMBINED REGIME SUMMARY")
+        self.debug("MOMENTUM 120D STRATEGY COMBINED REGIME SUMMARY")
         self.log_group_summary(classified_records, "combined_regime", "strategy_return")
 
         self.debug("QQQ UNDERLYING RETURN SUMMARY FOR COMPARISON")

@@ -513,3 +513,205 @@ The strategy uses prior-day momentum, volatility, and trend information. The gro
 This is a good second Git checkpoint after EXP-005.
 
 The next research step should be a small robustness test rather than another stricter filter. A reasonable candidate is testing the plain daily momentum strategy with a different momentum lookback, such as 120 days, to see whether EXP-002 depends heavily on the 60-day parameter.
+
+## EXP-006 - QQQ Daily Momentum 120-Day Baseline
+
+Experiment ID: `EXP-006_QQQ_DAILY_MOMENTUM_120D_BASELINE`
+
+QuantConnect project: `04 - Cross-Strategy Regime Analysis`
+
+Purpose: test whether the plain QQQ daily momentum result from EXP-002 is sensitive to the momentum lookback window.
+
+Strategy rule: hold QQQ when trailing 120-day momentum is positive. Otherwise hold cash.
+
+Backtest period shown in QuantConnect output: 2020-01-01 to 2026-04-22.
+
+### QuantConnect Performance Statistics
+
+The 120-day daily momentum strategy produced:
+
+- CAGR: 14.867%
+- Sharpe: 0.588
+- Sortino: 0.572
+- Max drawdown: 25.500%
+- Net profit: 139.831%
+- End equity: $239,830.61
+- Total orders: 46
+- Fees: $87.04
+- Momentum exposure: 72.52%
+
+QuantConnect also showed two execution warnings:
+
+- One rebalance recommendation was ignored because it would have resulted in a single-share trade.
+- A market order submitted while the market was closed was converted to a MarketOnOpen order.
+
+These are worth noting, but they do not change the main interpretation.
+
+### Regime Summary
+
+The algorithm recorded 1,583 daily return observations. Of those, 1,312 were fully classified into both volatility and trend regimes.
+
+Overall, the 120-day momentum return summary showed:
+
+- Cumulative return: 141.98%
+- Annualized return: 15.10%
+- Annualized volatility: 15.88%
+- Sharpe-like ratio: 0.951
+- Win rate: 41.44%
+
+The volatility regime split remained similar to the prior momentum experiments:
+
+- High-volatility days: 8.72% annualized return, 15.70% annualized volatility, 0.556 Sharpe-like ratio.
+- Low-volatility days: 16.01% annualized return, 15.23% annualized volatility, 1.051 Sharpe-like ratio.
+
+This again suggests that QQQ momentum behaved better in low-volatility regimes than high-volatility regimes.
+
+The trend regime split was more mixed:
+
+- Uptrend days: 20.09% annualized return, 17.21% annualized volatility, 1.167 Sharpe-like ratio.
+- Downtrend days: -8.08% annualized return, 6.95% annualized volatility, -1.162 Sharpe-like ratio.
+
+Unlike the 60-day momentum strategy, the 120-day momentum strategy performed poorly in downtrends. This suggests the longer lookback may react more slowly when the market regime deteriorates.
+
+### Interpretation
+
+EXP-006 gives partial support to the plain momentum idea.
+
+The 120-day momentum strategy remained positive, had a strong cumulative return, and traded less frequently than the 60-day version. This weakens the concern that EXP-002 only worked because of one narrow 60-day parameter.
+
+However, 120-day momentum was not clearly better than 60-day momentum. Compared with EXP-002, it had:
+
+- Slightly lower CAGR.
+- Lower QuantConnect Sharpe.
+- Lower Sortino.
+- Much larger max drawdown.
+- Lower turnover and fees.
+
+The biggest concern is drawdown. EXP-006 had a 25.500% drawdown versus 19.600% for EXP-002, which suggests the longer momentum window may reduce responsiveness.
+
+### Current Six-Experiment Takeaway
+
+So far, the strongest overall strategy remains EXP-002, the simple 60-day daily momentum baseline.
+
+The filtered strategies reduced exposure and drawdown, but generally hurt return and Sharpe. The 120-day robustness test supports the general momentum concept, but it did not improve on the 60-day version.
+
+The current evidence suggests:
+
+- QQQ buy-and-hold maximized raw return.
+- Simple momentum improved drawdown and risk-adjusted performance versus buy-and-hold.
+- Strict regime filters were too restrictive.
+- Momentum lookback matters, but the result is not completely isolated to 60 days.
+
+### Descriptive vs Tradable
+
+This is a tradable strategy backtest with descriptive regime summaries.
+
+The strategy uses a prior-data 120-day momentum signal. Regime summaries classify strategy returns using prior-data volatility and trend labels.
+
+### Limitations
+
+- EXP-006 used the latest QuantConnect output ending 2026-04-22, while earlier EXP-001 through EXP-004 were originally logged through 2026-07-01 based on prior outputs. Comparisons should account for that date mismatch.
+- Only one alternate momentum lookback was tested.
+- Results remain limited to QQQ and the 2020-2026 period.
+- This does not yet test shorter momentum, such as 20 days, or subperiod robustness.
+
+### Next Step
+
+The next logical robustness test is:
+
+`EXP-007_QQQ_DAILY_MOMENTUM_20D_BASELINE`
+
+That would test a shorter, faster momentum lookback. If 20-day momentum is much worse, then the strategy may prefer medium/longer trend signals. If it is similar or better, then the momentum effect may be more robust across lookbacks.
+
+## EXP-007 - QQQ Daily Momentum 20-Day Baseline
+
+Experiment ID: `EXP-007_QQQ_DAILY_MOMENTUM_20D_BASELINE`
+
+QuantConnect project: `04 - Cross-Strategy Regime Analysis`
+
+Purpose: test whether the plain QQQ daily momentum result is sensitive to a shorter, faster momentum lookback.
+
+Strategy rule: hold QQQ when trailing 20-day momentum is positive. Otherwise hold cash.
+
+Backtest period shown in QuantConnect output: 2020-01-01 to 2026-04-24.
+
+### QuantConnect Performance Statistics
+
+The 20-day daily momentum strategy produced:
+
+- CAGR: 18.113%
+- Sharpe: 0.761
+- Sortino: 0.717
+- Max drawdown: 27.100%
+- Net profit: 186.213%
+- End equity: $286,212.74
+- Total orders: 143
+- Fees: $280.18
+- Momentum exposure: 64.67%
+
+QuantConnect warned that a market order submitted while the market was closed was converted to a MarketOnOpen order. This warning exposes an execution-timing distinction discussed below.
+
+### Regime Summary
+
+The algorithm recorded 1,585 daily return observations, including 1,314 observations fully classified into both volatility and trend regimes.
+
+The synthetic 20-day momentum return series showed:
+
+- Cumulative return: 181.09%
+- Annualized return: 17.86%
+- Annualized volatility: 15.36%
+- Sharpe-like ratio: 1.163
+- Win rate: 36.59%
+
+Performance by volatility regime was positive in both buckets:
+
+- High volatility: 15.30% annualized return and 1.060 Sharpe-like ratio.
+- Low volatility: 12.90% annualized return and 0.912 Sharpe-like ratio.
+
+Performance was also positive across the broad trend labels:
+
+- Downtrend: 15.39% annualized return and 0.946 Sharpe-like ratio.
+- Uptrend: 13.51% annualized return and 0.993 Sharpe-like ratio.
+
+The strongest combined result was high-volatility downtrend, with a 23.85% annualized return and 1.437 Sharpe-like ratio. Low-volatility downtrend was negative, but it contained only 61 observations, so that estimate is less reliable.
+
+### Momentum Lookback Comparison
+
+Among the tested momentum lookbacks, the 20-day version produced the strongest QuantConnect CAGR and Sharpe:
+
+- 20-day: 18.113% CAGR, 0.761 Sharpe, 27.100% drawdown, 143 orders, and $280.18 in fees.
+- 60-day: 15.833% CAGR, 0.657 Sharpe, 19.600% drawdown, 79 orders, and $150.72 in fees.
+- 120-day: 14.867% CAGR, 0.588 Sharpe, 25.500% drawdown, 46 orders, and $87.04 in fees.
+
+The shorter signal improved return and Sharpe in this sample, but it also increased trading, fees, and drawdown. This is evidence that momentum remained effective across the three predefined lookbacks, not proof that 20 days is an optimal parameter.
+
+### Execution and Measurement Audit
+
+The QuantConnect portfolio produced a 186.213% net profit, while the algorithm's synthetic close-to-close regime series produced a 181.09% cumulative return.
+
+The code calculates a momentum signal after a daily close, applies that signal to the next close-to-close return in its synthetic records, and submits the associated portfolio order when the next daily bar arrives. QuantConnect reports that such orders are submitted after the market close and converted to MarketOnOpen orders. Therefore, the synthetic regime series and the actual portfolio fills do not have perfectly aligned exposure timing.
+
+This does not erase the experiment, because all three lookback tests used the same framework and remain useful as controlled comparisons. It does mean the custom regime statistics should not yet be treated as exact decompositions of the QuantConnect portfolio return.
+
+### Current Interpretation
+
+EXP-007 strengthens the evidence that the general QQQ momentum result is not isolated to one lookback. All three plain momentum versions were profitable.
+
+The 20-day signal was more responsive and captured more return in this sample, particularly during high-volatility downtrends. Its higher drawdown and trading activity prevent us from simply declaring it superior. The 60-day baseline remains a reasonable representative specification because it was selected before these robustness tests and offers the lowest drawdown of the three.
+
+### Descriptive vs Tradable
+
+The QuantConnect portfolio is a tradable backtest under QuantConnect's MarketOnOpen conversion behavior. The custom regime summaries are descriptive synthetic return calculations using prior-data labels and signals. Their timing needs to be aligned with actual fills before they can be described as exact portfolio regime attribution.
+
+### Limitations
+
+- The test period ends on 2026-04-24, while prior experiments have slightly different endpoints.
+- Only QQQ was tested.
+- Three lookbacks provide useful neighboring checks but do not establish universal parameter robustness.
+- The 20-day signal incurred substantially more orders and fees.
+- The custom regime return series is not perfectly aligned with QuantConnect's actual MarketOnOpen fills.
+- Low-volatility downtrend contains only 61 classified days.
+
+### Next Step
+
+Before building the direct buy-and-hold versus momentum comparison, the next experiment should audit and correct signal, fill, and return-attribution timing. After that correction, both strategy return streams can be compared under identical regime labels without mixing synthetic close-to-close exposure with a differently timed QuantConnect portfolio.
