@@ -989,3 +989,148 @@ Buy-and-hold was superior during the strong later-period market. Momentum was mo
 ### Next Step
 
 The daily buy-and-hold and momentum framework is now sufficiently developed. The next phase should inspect the exact QQQ 5-minute ORB code preserved in Projects 2 and 3 before designing the first ORB-by-regime experiment.
+
+## EXP-012 - QQQ ORB Five-Minute Range Timing Audit
+
+Experiment ID: `EXP-012_QQQ_ORB_5M_RANGE_TIMING_AUDIT`
+
+QuantConnect project: `04 - Cross-Strategy Regime Analysis`
+
+Purpose: verify that the QQQ opening range contains exactly five completed one-minute bars before using ORB in the cross-strategy regime study.
+
+### Legacy Timing Finding
+
+QuantConnect emits a minute bar when the bar ends. The original Projects 2 and 3 code used algorithm times from 9:30 inclusive to 9:35 exclusive when constructing the range.
+
+The first regular-session minute bar is available at 9:31. Therefore, the legacy condition used bars ending at 9:31, 9:32, 9:33, and 9:34, then allowed the bar ending at 9:35 to trigger a breakout. The strategy described as a five-minute ORB was effectively using four completed range bars.
+
+EXP-012 corrected the implementation by including bars ending at 9:31 through 9:35. The first eligible breakout bar ended at 9:36.
+
+### Timing Validation
+
+- Trading days observed: 1,586.
+- Completed opening ranges: 1,586.
+- Exact five-bar range days: 1,586.
+- Incorrect range-count days: 0.
+- Minimum, maximum, and average range bars: 5, 5, and 5.00.
+- ORB signal days: 1,307.
+- ORB signal-day rate: 82.41%.
+
+The timing correction worked consistently across every observed session.
+
+### QuantConnect Performance Statistics
+
+- CAGR: 6.802%.
+- Sharpe: 0.174.
+- Sortino: 0.172.
+- Max drawdown: 18.800%.
+- Net profit: 51.542%.
+- End equity: $151,541.81.
+- Total orders: 2,610.
+- Fees: $4,132.20.
+- Portfolio turnover: 112.70%.
+
+QuantConnect warned that one portfolio rebalance was ignored because it would have generated only a single-share recommendation. As a result, the 1,307 `trade_days` count should be interpreted as breakout signal days, not necessarily 1,307 filled entries.
+
+### Comparison With the Legacy Baseline
+
+The Project 3 clean ORB baseline reported 7.738% CAGR, 0.224 Sharpe, 0.225 Sortino, 16.100% drawdown, 59.896% net profit, 2,636 orders, and $4,391.32 in fees.
+
+The corrected five-bar implementation produced lower return and weaker risk-adjusted performance, while drawdown increased:
+
+- CAGR declined from 7.738% to 6.802%.
+- Sharpe declined from 0.224 to 0.174.
+- Sortino declined from 0.225 to 0.172.
+- Net profit declined from 59.896% to 51.542%.
+- Drawdown increased from 16.100% to 18.800%.
+
+This suggests the 9:35 bar's treatment had an economically meaningful effect. The legacy result was not completely destroyed, but it was somewhat overstated by the off-by-one range definition.
+
+### Interpretation
+
+The corrected QQQ ORB remained profitable but weak. It still had high turnover, more than 2,600 orders, over $4,100 in fees, and a Sharpe of only 0.174.
+
+The result is credible enough to include as the intraday strategy family in Project 4, provided it is described as a weak and execution-sensitive baseline rather than a robust trading edge.
+
+### Research Decision
+
+Project 4 will use the corrected five-bar definition rather than reproducing the legacy timing error. This changes the implementation for methodological accuracy, not to improve performance.
+
+Projects 2 and 3 remain unchanged as historical records of what was originally tested.
+
+### Next Step
+
+The next experiment should add the prior-day volatility and trend framework to this corrected ORB strategy. Daily ORB portfolio returns should be measured from actual QuantConnect portfolio value and attributed only to regime information available before the trading session.
+
+## EXP-013 - QQQ ORB End-of-Day Entry Cutoff Audit
+
+Experiment ID: `EXP-013_QQQ_ORB_5M_EOD_ENTRY_CUTOFF_AUDIT`
+
+QuantConnect project: `04 - Cross-Strategy Regime Analysis`
+
+Purpose: determine whether the legacy ORB could enter after its scheduled end-of-day liquidation and establish a corrected intraday-only implementation.
+
+Strategy rule: use the corrected five-bar opening range, allow long breakout entries beginning with the bar ending at 9:36, and close the entry window at the same scheduled event that liquidates holdings five minutes before the session close.
+
+### Timing Validation
+
+- Trading days observed: 1,586.
+- Completed opening ranges: 1,586.
+- Exact five-bar range days: 1,586.
+- Incorrect range-count days: 0.
+- ORB signal days before the cutoff: 1,303.
+- Signal-day rate: 82.16%.
+- Late breakout days blocked by the cutoff: 4.
+- Days with unintended overnight holdings: 0.
+
+The audit confirms that the corrected strategy remained flat overnight and that the legacy implementation would have accepted four additional breakouts after the intended entry window.
+
+### QuantConnect Performance Statistics
+
+- CAGR: 7.078%.
+- Sharpe: 0.189.
+- Sortino: 0.186.
+- Max drawdown: 17.600%.
+- Net profit: 54.029%.
+- End equity: $154,028.78.
+- Total orders: 2,606.
+- Fees: $4,170.38.
+- Portfolio turnover: 112.54%.
+
+No execution warning was included in the submitted output.
+
+### Comparison With EXP-012
+
+Blocking the four late breakout days improved performance:
+
+- CAGR increased from 6.802% to 7.078%.
+- Sharpe increased from 0.174 to 0.189.
+- Sortino increased from 0.172 to 0.186.
+- Net profit increased from 51.542% to 54.029%.
+- Drawdown improved from 18.800% to 17.600%.
+- Orders declined from 2,610 to 2,606.
+
+This result should not be interpreted as parameter optimization. The cutoff was imposed to make the code match the stated end-of-day exit rule. The fact that performance improved is an observed consequence of correcting the implementation.
+
+### Canonical ORB Definition
+
+Project 4 will use the following ORB specification:
+
+- QQQ minute data.
+- Opening range consists of the five bars ending 9:31 through 9:35.
+- First eligible breakout bar ends at 9:36.
+- Long-only entry when a later minute closes above the opening range high.
+- No stop and no profit target.
+- No new entries beginning five minutes before the session close.
+- Liquidate existing positions five minutes before the session close.
+- No intended overnight exposure.
+
+### Interpretation
+
+The corrected ORB remained positive but weak. It generated a 7.078% CAGR and 0.189 Sharpe while requiring 2,606 orders, more than $4,100 in fees, and 112.54% portfolio turnover.
+
+This makes it suitable as a contrasting intraday strategy family for Project 4, but not as evidence of a strong standalone trading edge.
+
+### Next Step
+
+The ORB implementation audit is complete. The next experiment should attribute the corrected strategy's actual daily portfolio returns to prior-day volatility and trend regimes.

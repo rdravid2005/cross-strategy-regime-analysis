@@ -1,0 +1,2 @@
+Experiment ID,Trading Days,Completed Opening Ranges,Exact Five-Bar Days,Incorrect Range Days,ORB Signal Days,Signal-Day Rate,Late Breakout Days Blocked,Unintended Overnight Holding Days,CAGR,Sharpe,Sortino,Max Drawdown,Net Profit,Total Orders,Fees,Turnover,End Equity
+EXP-013_QQQ_ORB_5M_EOD_ENTRY_CUTOFF_AUDIT,1586,1586,1586,0,1303,82.16%,4,0,7.078%,0.189,0.186,17.600%,54.029%,2606,$4170.38,112.54%,$154028.78

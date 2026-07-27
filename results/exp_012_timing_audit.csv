@@ -1,0 +1,2 @@
+Experiment ID,Trading Days,Completed Opening Ranges,Exact Five-Bar Days,Incorrect Range Days,Minimum Bars,Maximum Bars,Average Bars,ORB Signal Days,Signal-Day Rate,CAGR,Sharpe,Sortino,Max Drawdown,Net Profit,Total Orders,Fees,Turnover,End Equity
+EXP-012_QQQ_ORB_5M_RANGE_TIMING_AUDIT,1586,1586,1586,0,5,5,5.00,1307,82.41%,6.802%,0.174,0.172,18.800%,51.542%,2610,$4132.20,112.70%,$151541.81

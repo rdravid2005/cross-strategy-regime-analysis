@@ -2,23 +2,23 @@
 Project 4: Cross-Strategy Regime Analysis
 
 Experiment:
-EXP-013_QQQ_ORB_5M_EOD_ENTRY_CUTOFF_AUDIT
+EXP-012_QQQ_ORB_5M_RANGE_TIMING_AUDIT
 
 Purpose:
-Verify that the corrected five-bar ORB cannot enter after its scheduled
-end-of-day liquidation time and cannot carry unintended overnight exposure.
+Rebuild the QQQ 5-minute ORB baseline with an opening range that contains
+exactly five completed one-minute bars.
 
-Legacy end-of-day issue:
-The prior code liquidated five minutes before the close but left entry logic
-active. A day with no earlier breakout could therefore enter after the exit
-event and carry the position overnight.
+Legacy timing issue:
+LEAN emits minute bars at their end time. The prior condition included bars
+ending at 9:31, 9:32, 9:33, and 9:34, then allowed the 9:35 bar to trigger a
+breakout. This experiment includes the 9:35 bar in the opening range and makes
+the 9:36 bar the first eligible breakout bar.
 
 Strategy:
 - QQQ minute data
 - Long-only
 - Five-bar opening range
 - Enter when a later minute closes above the opening range high
-- Block new entries beginning five minutes before the close
 - Exit five minutes before the market close
 - No stop or profit target
 """
@@ -44,19 +44,15 @@ class CrossStrategyRegimeAnalysis(QCAlgorithm):
         self.opening_range_complete = False
         self.range_count_recorded = False
         self.traded_today = False
-        self.entry_window_closed = False
-        self.late_breakout_recorded = False
 
         self.trading_days = 0
         self.trade_days = 0
-        self.legacy_late_breakout_days = 0
-        self.overnight_holding_days = 0
         self.completed_range_counts = []
 
         self.schedule.on(
             self.date_rules.every_day(self.symbol),
             self.time_rules.before_market_close(self.symbol, 5),
-            self.close_entry_window_and_exit,
+            self.exit_position,
         )
 
     def on_data(self, data: Slice):
@@ -102,23 +98,11 @@ class CrossStrategyRegimeAnalysis(QCAlgorithm):
             return
 
         if bar.close > self.opening_range_high:
-            if self.entry_window_closed:
-                if not self.late_breakout_recorded:
-                    self.legacy_late_breakout_days += 1
-                    self.late_breakout_recorded = True
-                return
-
             self.set_holdings(self.symbol, 1)
             self.traded_today = True
             self.trade_days += 1
 
     def reset_daily_state(self, current_day):
-        if (
-            self.current_day is not None
-            and self.portfolio[self.symbol].invested
-        ):
-            self.overnight_holding_days += 1
-
         self.current_day = current_day
         self.opening_range_high = None
         self.opening_range_low = None
@@ -126,8 +110,6 @@ class CrossStrategyRegimeAnalysis(QCAlgorithm):
         self.opening_range_complete = False
         self.range_count_recorded = False
         self.traded_today = False
-        self.entry_window_closed = False
-        self.late_breakout_recorded = False
         self.trading_days += 1
 
     def update_opening_range(self, bar):
@@ -146,9 +128,7 @@ class CrossStrategyRegimeAnalysis(QCAlgorithm):
         self.completed_range_counts.append(self.opening_range_bar_count)
         self.range_count_recorded = True
 
-    def close_entry_window_and_exit(self):
-        self.entry_window_closed = True
-
+    def exit_position(self):
         if self.portfolio[self.symbol].invested:
             self.liquidate(self.symbol)
 
@@ -179,14 +159,10 @@ class CrossStrategyRegimeAnalysis(QCAlgorithm):
             if self.trading_days else 0
         )
 
-        if self.portfolio[self.symbol].invested:
-            self.overnight_holding_days += 1
-
-        self.debug("EXP-013_QQQ_ORB_5M_EOD_ENTRY_CUTOFF_AUDIT")
-        self.debug("Strategy: QQQ five-bar long-only ORB with entry cutoff")
+        self.debug("EXP-012_QQQ_ORB_5M_RANGE_TIMING_AUDIT")
+        self.debug("Strategy: QQQ five-bar long-only ORB")
         self.debug("Opening range bars: end times 9:31 through 9:35")
         self.debug("First eligible breakout bar: end time 9:36")
-        self.debug("Entry window closes five minutes before each session close")
         self.debug(f"Trading days observed: {self.trading_days}")
         self.debug(
             f"Completed opening ranges: {len(self.completed_range_counts)}"
@@ -201,11 +177,3 @@ class CrossStrategyRegimeAnalysis(QCAlgorithm):
         )
         self.debug(f"ORB trade days: {self.trade_days}")
         self.debug(f"ORB trade-day rate: {trade_day_rate:.2%}")
-        self.debug(
-            "Late breakout days blocked by cutoff: "
-            f"{self.legacy_late_breakout_days}"
-        )
-        self.debug(
-            "Days with unintended overnight holdings: "
-            f"{self.overnight_holding_days}"
-        )
