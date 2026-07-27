@@ -121,3 +121,13 @@ Before coding, I should be able to explain:
 The goal is not to find the best-performing parameter set.
 
 The goal is to build a clean framework for comparing strategy behavior across regimes and to document the evidence honestly.
+
+## Completed Scope Note
+
+The daily framework passed the initial exit test before intraday ORB was added.
+The completed project therefore extends the first-version scope to include the
+corrected QQQ five-bar ORB as a third strategy family.
+
+The research question and initial hypothesis were not changed after observing
+the results. ORB was added to complete the cross-strategy comparison originally
+described in the broader project plan.

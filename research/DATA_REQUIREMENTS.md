@@ -1,45 +1,41 @@
-# Optional Local Data Requirements
+# Data and Result Inputs
 
-This file is optional and is not part of the main Project 4 workflow right now.
+Project 4 is QuantConnect-first. No local QQQ price file is required.
 
-Project 4 is currently QuantConnect-first:
+QuantConnect supplies:
 
-- Codex writes QuantConnect-compatible Python code.
-- The user runs the backtest in QuantConnect.
-- Results are recorded in the local repository.
+- Daily and minute QQQ market data.
+- The backtest engine.
+- Order execution and fill modeling.
+- Fees and portfolio statistics.
 
-Local CSV-based analysis may be added later if deliberately approved.
+The exact QuantConnect algorithms are preserved under `src/experiments/`.
+Reported backtest outputs are stored as structured summaries under `results/`.
 
-## Optional Input File
+## Local Synthesis Inputs
 
-If a later local helper script is created, it may expect real QQQ daily price data at:
-
-```text
-research/qqq_daily.csv
-```
-
-Do not use fake data for research conclusions.
-
-## Required Columns
-
-The CSV must contain at least:
+The final local comparison script reads:
 
 ```text
-Date,Close
+results/exp_010_regime_summary.csv
+results/exp_014_regime_summary.csv
 ```
 
-Extra columns such as `Open`, `High`, `Low`, `Volume`, or `Adjusted Close` are okay, but the first script only uses `Date` and `Close`.
+It does not download prices or rerun a backtest. It combines the saved
+canonical QuantConnect summaries and produces:
 
-## Example Format
-
-```csv
-Date,Close
-2020-01-02,216.16
-2020-01-03,214.18
+```text
+results/three_strategy_regime_comparison.csv
+figures/combined_regime_annualized_return.png
+figures/overall_return_vs_volatility.png
 ```
 
-## Suggested Source
+Run it from the project root:
 
-For now, export daily QQQ price data manually from QuantConnect or another trusted source and place it at `research/qqq_daily.csv`.
+```bash
+python -m pip install -r requirements.txt
+python research/build_final_comparison.py
+```
 
-Later, this project may connect directly to QuantConnect Lean or an API, but the first version is intentionally file-based so the research logic is easy to inspect.
+Raw local price analysis may be added in a future, separately approved research
+stage. It is not part of the current project workflow.

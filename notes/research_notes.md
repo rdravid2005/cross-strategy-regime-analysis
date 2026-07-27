@@ -1387,3 +1387,57 @@ The next phase is local synthesis:
 3. Update the README with findings, limitations, and the final conclusion.
 4. Review the repository for reproducibility.
 5. Commit and push the completed research checkpoint.
+
+## Final Cross-Strategy Synthesis
+
+The canonical EXP-010 daily summaries and EXP-014 ORB summaries were combined
+into `results/three_strategy_regime_comparison.csv`. The source experiment and
+source end date are retained because the daily and ORB runs end several
+trading days apart.
+
+### Overall Tradeoff
+
+Buy-and-hold delivered the strongest raw return but the largest drawdown.
+Momentum materially reduced drawdown at the cost of return. ORB had similar
+annualized volatility to momentum in the custom daily series, but much lower
+return and substantially higher turnover and fees.
+
+No strategy dominated both return and risk.
+
+### Regime Specialization
+
+The combined regime comparison shows three distinct profiles:
+
+- Buy-and-hold was strongest in uptrends.
+- Momentum was strongest in low-volatility uptrends and behaved defensively
+  relative to continuous market exposure.
+- ORB was strongest in high-volatility downtrends and weak in uptrends.
+
+This supports the initial hypothesis that strategy families respond
+differently to market environments.
+
+### What the Evidence Does Not Show
+
+The project did not test a portfolio that switches among these strategies.
+Comparing conditional historical returns is not sufficient to establish a
+tradable allocation rule.
+
+A future strategy-selection project would need:
+
+- A separate precommitted hypothesis.
+- Regime labels known before allocation.
+- Fixed allocation and rebalance rules.
+- Out-of-sample or walk-forward testing.
+- Portfolio-level fees, slippage, and turnover.
+- Comparison against simple static allocations.
+
+### Final Research Conclusion
+
+Buy-and-hold remained the strongest return benchmark. Momentum offered a
+credible defensive tradeoff but was not a superior return strategy. ORB
+displayed a distinctive stress-regime payoff pattern, but its weak overall
+Sharpe, high turnover, execution sensitivity, and small conditional samples
+prevent a strong tradability claim.
+
+The project supports regime dependence, not a finished regime-switching
+strategy.

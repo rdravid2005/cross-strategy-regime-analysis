@@ -6,3 +6,5 @@ venv/
 figures/*.png
 figures/*.jpg
 figures/*.jpeg
+!figures/combined_regime_annualized_return.png
+!figures/overall_return_vs_volatility.png
