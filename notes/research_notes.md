@@ -1134,3 +1134,256 @@ This makes it suitable as a contrasting intraday strategy family for Project 4, 
 ### Next Step
 
 The ORB implementation audit is complete. The next experiment should attribute the corrected strategy's actual daily portfolio returns to prior-day volatility and trend regimes.
+
+## EXP-014 - QQQ ORB Five-Minute Regime Baseline
+
+Experiment ID: `EXP-014_QQQ_ORB_5M_REGIME_BASELINE`
+
+QuantConnect project: `04 - Cross-Strategy Regime Analysis`
+
+Purpose: measure the corrected ORB strategy's actual daily portfolio returns across volatility and trend regimes known before each trading session.
+
+### Strategy and Timing
+
+- QQQ minute data.
+- Opening range consists of the five bars ending 9:31 through 9:35.
+- First eligible breakout bar ends at 9:36.
+- Long-only entry after a close above the opening range high.
+- No stop and no profit target.
+- Entry cutoff and liquidation five minutes before each session close.
+- Today's ORB return is assigned yesterday's regime label.
+- The next regime is calculated only after the current session closes.
+
+This is tradable backtest logic rather than a full-sample descriptive classification. The rolling volatility threshold and trend rule use only information available before the return being evaluated.
+
+### Implementation Validation
+
+- Trading days observed: 1,588.
+- Completed opening ranges: 1,588.
+- Exact five-bar range days: 1,588.
+- Incorrect range-count days: 0.
+- ORB signal days: 1,305.
+- Signal-day rate: 82.18%.
+- Late breakouts blocked by the cutoff: 4.
+- Days with unintended overnight holdings: 0.
+- Daily ORB records: 1,587.
+- Fully classified daily records: 1,315.
+- Custom cumulative return: 54.04%.
+- QuantConnect net profit: 54.01%.
+- Return alignment difference: 0.0349 percentage points.
+
+The small return difference confirms that daily changes in QuantConnect portfolio value provide a reliable series for regime attribution.
+
+### QuantConnect Performance Statistics
+
+- CAGR: 7.063%.
+- Sharpe: 0.188.
+- Sortino: 0.185.
+- Max drawdown: 17.600%.
+- Net profit: 54.010%.
+- End equity: $154,010.01.
+- Total orders: 2,610.
+- Fees: $4,175.02.
+- Portfolio turnover: 112.51%.
+
+The corrected ORB remained profitable but weak overall. Its low Sharpe, high turnover, and material fees are consistent with the conclusions from Projects 2 and 3.
+
+### Regime Findings
+
+ORB behaved much better in high-volatility conditions than in low-volatility conditions:
+
+- High volatility: 17.63% conditional annualized return and 0.975 Sharpe-like.
+- Low volatility: 2.59% conditional annualized return and 0.213 Sharpe-like.
+
+The trend split was even larger:
+
+- Downtrend: 32.67% conditional annualized return and 1.415 Sharpe-like.
+- Uptrend: 2.55% conditional annualized return and 0.222 Sharpe-like.
+
+The strongest combined bucket was high-volatility downtrend:
+
+- 248 days.
+- 39.76% cumulative conditional return.
+- 40.51% conditional annualized return.
+- 23.61% annualized volatility.
+- 1.716 Sharpe-like.
+
+Low-volatility uptrend was much weaker:
+
+- 676 days.
+- 6.48% cumulative conditional return.
+- 2.37% conditional annualized return.
+- 0.214 Sharpe-like.
+
+### Signal Frequency Versus Payoff
+
+ORB signal rates were nearly identical in high- and low-volatility regimes:
+
+- High volatility: 81.31%.
+- Low volatility: 81.28%.
+
+Signal rates were also reasonably similar in downtrends and uptrends:
+
+- Downtrend: 78.96%.
+- Uptrend: 82.01%.
+
+Therefore, stronger high-volatility downtrend performance was not caused by the strategy trading much more often in that regime. The evidence points to different conditional payoffs after breakouts.
+
+### Cross-Strategy Interpretation
+
+The three strategy families now display meaningfully different regime profiles:
+
+- Buy-and-hold captured the most overall and uptrend return.
+- Sixty-day momentum reduced risk and was strongest relative to buy-and-hold in low-volatility and stressed periods, but sacrificed substantial upside.
+- ORB was weak overall but earned most of its return during high-volatility downtrends, where the daily strategies were less attractive or more exposed.
+
+This supports the initial hypothesis that strategy behavior depends on market regime. It does not establish that an ORB regime filter is tradable or robust.
+
+### Limitations
+
+- Conditional annualized returns are calculated from non-contiguous regime days and are not calendar-period CAGRs.
+- Regime cumulative returns are not additive because each bucket compounds its own subset of days.
+- The high-volatility downtrend result may be concentrated in a small number of stressed episodes.
+- The backtest has only 248 classified high-volatility downtrend days.
+- ORB remains execution-sensitive and high-turnover.
+- Signal-day counts are not necessarily identical to filled-entry counts.
+- No slippage sensitivity was added here because Project 3 already demonstrated that the ORB edge is vulnerable to small execution costs.
+
+### Conclusion
+
+EXP-014 provides the clearest support so far for cross-strategy regime dependence. The corrected ORB was not broadly strong, but it behaved best in the regime where it was most distinct from passive exposure: high-volatility downtrends.
+
+The result is interesting, not yet robust. A predefined subperiod test is needed to determine whether this pattern appears across more than one segment of the sample or is dominated by a single market episode.
+
+### Next Step
+
+Run one final QuantConnect experiment using the unchanged corrected ORB and unchanged regime definitions, split into predefined 2020-2022 and 2023-2026 subperiods. After that run, stop adding strategy variants and complete the local three-strategy synthesis.
+
+## EXP-015 - QQQ ORB Regime Subperiod Robustness
+
+Experiment ID: `EXP-015_QQQ_ORB_5M_REGIME_SUBPERIOD_ROBUSTNESS`
+
+QuantConnect project: `04 - Cross-Strategy Regime Analysis`
+
+Purpose: test whether the regime behavior observed in EXP-014 appears in both predefined 2020-2022 and 2023-2026 subperiods.
+
+### Controlled Design
+
+This experiment did not change the strategy.
+
+- ORB construction was unchanged.
+- Entry and exit timing were unchanged.
+- Position sizing was unchanged.
+- Volatility and trend definitions were unchanged.
+- Prior-day regime timing was unchanged.
+
+Only the reporting was split into two periods. This makes EXP-015 a robustness test rather than another strategy variant.
+
+### Reproduction and Validation
+
+The full-sample QuantConnect statistics exactly reproduced EXP-014:
+
+- CAGR: 7.063%.
+- Sharpe: 0.188.
+- Sortino: 0.185.
+- Max drawdown: 17.600%.
+- Net profit: 54.010%.
+- End equity: $154,010.01.
+- Total orders: 2,610.
+- Fees: $4,175.02.
+- Portfolio turnover: 112.51%.
+
+The implementation checks also passed:
+
+- All 1,588 completed opening ranges contained exactly five bars.
+- Incorrect range-count days: 0.
+- Late breakouts blocked: 4.
+- Unintended overnight holding days: 0.
+- Custom return and QuantConnect net-profit difference: 0.0349 percentage points.
+
+### 2020-2022 Results
+
+- Daily ORB records: 756.
+- Fully classified records: 484.
+- ORB signal rate: 82.28%.
+- ORB cumulative return: 8.61%.
+- ORB conditional annualized return: 2.79%.
+- ORB annualized volatility: 17.53%.
+- ORB Sharpe-like: 0.159.
+- QQQ cumulative return: 25.60%.
+
+High-volatility ORB outperformed low-volatility ORB on a conditional basis:
+
+- High volatility: 7.56% cumulative, 7.01% annualized, 0.352 Sharpe-like.
+- Low volatility: 2.52% cumulative, 2.99% annualized, 0.218 Sharpe-like.
+
+The trend split was stronger:
+
+- Downtrend: 13.10% cumulative and 0.659 Sharpe-like.
+- Uptrend: -2.50% cumulative and -0.202 Sharpe-like.
+
+High-volatility downtrend was the strongest combined regime:
+
+- 192 days.
+- 14.93% cumulative conditional return.
+- 20.04% conditional annualized return.
+- 0.930 Sharpe-like.
+
+### 2023-2026 Results
+
+- Daily ORB records: 831.
+- Fully classified records: 831.
+- ORB signal rate: 82.07%.
+- ORB cumulative return: 41.83%.
+- ORB conditional annualized return: 11.18%.
+- ORB annualized volatility: 13.48%.
+- ORB Sharpe-like: 0.829.
+- QQQ cumulative return: 154.27%.
+
+High-volatility ORB again outperformed low-volatility ORB:
+
+- High volatility: 34.93% cumulative, 27.88% annualized, 1.709 Sharpe-like.
+- Low volatility: 5.11% cumulative, 2.43% annualized, 0.211 Sharpe-like.
+
+Downtrend ORB again had stronger conditional behavior than uptrend ORB:
+
+- Downtrend: 25.05% cumulative and 4.056 Sharpe-like.
+- Uptrend: 13.42% cumulative and 0.383 Sharpe-like.
+
+High-volatility downtrend was again the strongest combined regime:
+
+- 56 days.
+- 21.60% cumulative conditional return.
+- 141.07% conditional annualized return.
+- 4.768 Sharpe-like.
+
+### Interpretation
+
+The direction of the EXP-014 finding survived the split:
+
+- High-volatility ORB was stronger than low-volatility ORB in both periods.
+- Downtrend ORB was stronger than uptrend ORB in both periods.
+- High-volatility downtrend was the strongest combined bucket in both periods.
+- Overall signal rates were almost identical at 82.28% and 82.07%.
+
+This supports the idea that regime differences came from conditional payoff behavior rather than a higher frequency of ORB signals.
+
+However, performance magnitude was not stable. Overall ORB returned only 8.61% in 2020-2022 but 41.83% in 2023-2026. The later high-volatility downtrend bucket contained only 56 days, and its 141.07% annualized figure is a mechanical annualization of non-contiguous conditional returns. It must not be interpreted as a calendar CAGR or a reliable forward expectation.
+
+### Robustness Conclusion
+
+The high-volatility downtrend relationship is partially robust in direction, but not robust in magnitude.
+
+This is stronger evidence than a single full-sample result, but it is still insufficient to claim a dependable tradable regime filter. The sample contains few independent market cycles, the most striking later-period estimate comes from a small bucket, and ORB remains weak, expensive, and execution-sensitive overall.
+
+### Project Decision
+
+The QuantConnect experiment phase is complete. No additional ORB filters or parameter variants will be added.
+
+The next phase is local synthesis:
+
+1. Build a three-strategy regime comparison using the canonical buy-and-hold, 60-day momentum, and corrected ORB results.
+2. Create concise comparison figures.
+3. Update the README with findings, limitations, and the final conclusion.
+4. Review the repository for reproducibility.
+5. Commit and push the completed research checkpoint.

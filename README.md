@@ -14,7 +14,7 @@ How do different strategy types perform across different market regimes?
 
 ## Current Status
 
-EXP-001 through EXP-013 have been run in QuantConnect.
+EXP-001 through EXP-015 have been run in QuantConnect. The planned QuantConnect experiment phase is complete.
 
 Completed initial experiments:
 
@@ -44,6 +44,10 @@ Completed initial experiments:
 
 `EXP-013_QQQ_ORB_5M_EOD_ENTRY_CUTOFF_AUDIT`
 
+`EXP-014_QQQ_ORB_5M_REGIME_BASELINE`
+
+`EXP-015_QQQ_ORB_5M_REGIME_SUBPERIOD_ROBUSTNESS`
+
 ## Planned First Outputs
 
 - `results/experiment_log.csv`
@@ -60,6 +64,8 @@ Completed initial experiments:
 - `results/exp_011_subperiod_summary.csv`
 - `results/exp_012_timing_audit.csv`
 - `results/exp_013_eod_cutoff_audit.csv`
+- `results/exp_014_regime_summary.csv`
+- `results/exp_015_subperiod_summary.csv`
 - `notes/research_notes.md`
 
 ## QuantConnect Workflow

@@ -2,11 +2,11 @@
 Project 4: Cross-Strategy Regime Analysis
 
 Experiment:
-EXP-015_QQQ_ORB_5M_REGIME_SUBPERIOD_ROBUSTNESS
+EXP-014_QQQ_ORB_5M_REGIME_BASELINE
 
 Purpose:
-Test whether the corrected ORB's regime behavior is stable across predefined
-2020-2022 and 2023-2026 subperiods.
+Measure the corrected QQQ five-minute ORB across prior-day volatility and
+trend regimes using actual QuantConnect portfolio returns.
 
 Regime timing:
 Each day's ORB return is assigned to the regime calculated after the previous
@@ -20,10 +20,6 @@ Strategy:
 - Block new entries beginning five minutes before the close
 - Exit five minutes before the market close
 - No stop or profit target
-
-Robustness rule:
-The ORB logic, regime definitions, execution timing, and portfolio sizing are
-unchanged from EXP-014. Only the reporting is split into predefined periods.
 """
 
 from AlgorithmImports import *
@@ -309,10 +305,8 @@ class CrossStrategyRegimeAnalysis(QCAlgorithm):
             and record["trend_regime"] != "unclassified"
         ]
 
-        self.debug("EXP-015_QQQ_ORB_5M_REGIME_SUBPERIOD_ROBUSTNESS")
+        self.debug("EXP-014_QQQ_ORB_5M_REGIME_BASELINE")
         self.debug("Strategy: corrected QQQ five-bar long-only ORB")
-        self.debug("Subperiods: 2020-2022 and 2023-2026")
-        self.debug("Strategy and regime parameters: unchanged from EXP-014")
         self.debug("Regime timing: today's ORB return uses yesterday's label")
         self.debug("ORB returns: daily changes in QuantConnect portfolio value")
         self.debug("Opening range bars: end times 9:31 through 9:35")
@@ -396,95 +390,6 @@ class CrossStrategyRegimeAnalysis(QCAlgorithm):
             f"custom_cum_return={custom_cumulative:.2%}, "
             f"quantconnect_net_profit={quantconnect_net_profit:.2%}, "
             f"difference={alignment_difference:.4%}"
-        )
-
-        self.log_subperiod_summary(
-            "2020-2022",
-            self.daily_records,
-            2020,
-            2022,
-        )
-        self.log_subperiod_summary(
-            "2023-2026",
-            self.daily_records,
-            2023,
-            2026,
-        )
-
-    def log_subperiod_summary(
-        self,
-        label,
-        all_records,
-        start_year,
-        end_year,
-    ):
-        period_records = [
-            record for record in all_records
-            if start_year <= record["date"].year <= end_year
-        ]
-        classified_records = [
-            record for record in period_records
-            if record["volatility_regime"] != "unclassified"
-            and record["trend_regime"] != "unclassified"
-        ]
-        qqq_records = [
-            record for record in period_records
-            if record["qqq_return"] is not None
-        ]
-        signal_days = sum(
-            1 for record in period_records
-            if record["orb_signal"]
-        )
-        signal_rate = (
-            signal_days / len(period_records)
-            if period_records else 0
-        )
-
-        self.debug(f"SUBPERIOD {label}")
-        self.debug(f"{label} daily records: {len(period_records)}")
-        self.debug(
-            f"{label} fully classified records: "
-            f"{len(classified_records)}"
-        )
-        self.debug(
-            f"{label} ORB signal activity: "
-            f"signal_days={signal_days}, "
-            f"signal_rate={signal_rate:.2%}"
-        )
-
-        self.debug(f"{label} ORB OVERALL SUMMARY")
-        self.log_summary(
-            f"{label}_orb_all_days",
-            period_records,
-            "orb_return",
-        )
-
-        self.debug(f"{label} ORB VOLATILITY REGIME SUMMARY")
-        self.log_group_summary(
-            classified_records,
-            "volatility_regime",
-            "orb_return",
-        )
-
-        self.debug(f"{label} ORB TREND REGIME SUMMARY")
-        self.log_group_summary(
-            classified_records,
-            "trend_regime",
-            "orb_return",
-        )
-
-        self.debug(f"{label} ORB COMBINED REGIME SUMMARY")
-        self.log_group_summary(
-            classified_records,
-            "combined_regime",
-            "orb_return",
-        )
-
-        self.debug(f"{label} QQQ UNDERLYING SUMMARY")
-        self.log_summary(
-            f"{label}_qqq_all_days",
-            qqq_records,
-            "qqq_return",
         )
 
     def log_group_summary(self, records, group_key, return_key):

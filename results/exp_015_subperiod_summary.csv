@@ -1,0 +1,21 @@
+Experiment ID,Subperiod,Strategy,Regime Type,Regime,Days,Cumulative Return,Annualized Return,Annualized Volatility,Sharpe Like,Average Daily Return,Win Rate,Signal Days,Signal Rate
+EXP-015_QQQ_ORB_5M_REGIME_SUBPERIOD_ROBUSTNESS,2020-2022,Corrected Five-Bar ORB,overall,all_days,756,8.61%,2.79%,17.53%,0.159,0.0170%,45.11%,622,82.28%
+EXP-015_QQQ_ORB_5M_REGIME_SUBPERIOD_ROBUSTNESS,2020-2022,Corrected Five-Bar ORB,volatility_regime,high_volatility,271,7.56%,7.01%,19.92%,0.352,0.0348%,44.28%,,
+EXP-015_QQQ_ORB_5M_REGIME_SUBPERIOD_ROBUSTNESS,2020-2022,Corrected Five-Bar ORB,volatility_regime,low_volatility,213,2.52%,2.99%,13.71%,0.218,0.0154%,40.85%,,
+EXP-015_QQQ_ORB_5M_REGIME_SUBPERIOD_ROBUSTNESS,2020-2022,Corrected Five-Bar ORB,trend_regime,downtrend,233,13.10%,14.24%,21.61%,0.659,0.0621%,43.35%,,
+EXP-015_QQQ_ORB_5M_REGIME_SUBPERIOD_ROBUSTNESS,2020-2022,Corrected Five-Bar ORB,trend_regime,uptrend,251,-2.50%,-2.51%,12.40%,-0.202,-0.0070%,42.23%,,
+EXP-015_QQQ_ORB_5M_REGIME_SUBPERIOD_ROBUSTNESS,2020-2022,Corrected Five-Bar ORB,combined_regime,high_volatility_downtrend,192,14.93%,20.04%,21.55%,0.930,0.0817%,44.79%,,
+EXP-015_QQQ_ORB_5M_REGIME_SUBPERIOD_ROBUSTNESS,2020-2022,Corrected Five-Bar ORB,combined_regime,high_volatility_uptrend,79,-6.41%,-19.06%,15.22%,-1.252,-0.0793%,43.04%,,
+EXP-015_QQQ_ORB_5M_REGIME_SUBPERIOD_ROBUSTNESS,2020-2022,Corrected Five-Bar ORB,combined_regime,low_volatility_downtrend,41,-1.59%,-9.41%,22.10%,-0.426,-0.0298%,36.59%,,
+EXP-015_QQQ_ORB_5M_REGIME_SUBPERIOD_ROBUSTNESS,2020-2022,Corrected Five-Bar ORB,combined_regime,low_volatility_uptrend,172,4.18%,6.19%,10.88%,0.569,0.0262%,41.86%,,
+EXP-015_QQQ_ORB_5M_REGIME_SUBPERIOD_ROBUSTNESS,2020-2022,QQQ Underlying,overall,all_days,755,25.60%,7.91%,29.59%,0.267,0.0476%,54.44%,,
+EXP-015_QQQ_ORB_5M_REGIME_SUBPERIOD_ROBUSTNESS,2023-2026,Corrected Five-Bar ORB,overall,all_days,831,41.83%,11.18%,13.48%,0.829,0.0456%,45.37%,682,82.07%
+EXP-015_QQQ_ORB_5M_REGIME_SUBPERIOD_ROBUSTNESS,2023-2026,Corrected Five-Bar ORB,volatility_regime,high_volatility,307,34.93%,27.88%,16.31%,1.709,0.1028%,46.25%,,
+EXP-015_QQQ_ORB_5M_REGIME_SUBPERIOD_ROBUSTNESS,2023-2026,Corrected Five-Bar ORB,volatility_regime,low_volatility,524,5.11%,2.43%,11.49%,0.211,0.0121%,44.85%,,
+EXP-015_QQQ_ORB_5M_REGIME_SUBPERIOD_ROBUSTNESS,2023-2026,Corrected Five-Bar ORB,trend_regime,downtrend,76,25.05%,109.86%,27.09%,4.056,0.3085%,46.05%,,
+EXP-015_QQQ_ORB_5M_REGIME_SUBPERIOD_ROBUSTNESS,2023-2026,Corrected Five-Bar ORB,trend_regime,uptrend,755,13.42%,4.29%,11.19%,0.383,0.0192%,45.30%,,
+EXP-015_QQQ_ORB_5M_REGIME_SUBPERIOD_ROBUSTNESS,2023-2026,Corrected Five-Bar ORB,combined_regime,high_volatility_downtrend,56,21.60%,141.07%,29.59%,4.768,0.3662%,44.64%,,
+EXP-015_QQQ_ORB_5M_REGIME_SUBPERIOD_ROBUSTNESS,2023-2026,Corrected Five-Bar ORB,combined_regime,high_volatility_uptrend,251,10.97%,11.01%,11.32%,0.973,0.0440%,46.61%,,
+EXP-015_QQQ_ORB_5M_REGIME_SUBPERIOD_ROBUSTNESS,2023-2026,Corrected Five-Bar ORB,combined_regime,low_volatility_downtrend,20,2.84%,42.34%,18.78%,2.255,0.1469%,50.00%,,
+EXP-015_QQQ_ORB_5M_REGIME_SUBPERIOD_ROBUSTNESS,2023-2026,Corrected Five-Bar ORB,combined_regime,low_volatility_uptrend,504,2.21%,1.10%,11.13%,0.099,0.0068%,44.64%,,
+EXP-015_QQQ_ORB_5M_REGIME_SUBPERIOD_ROBUSTNESS,2023-2026,QQQ Underlying,overall,all_days,831,154.27%,32.71%,19.84%,1.649,0.1201%,57.52%,,
